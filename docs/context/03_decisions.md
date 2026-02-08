@@ -31,7 +31,7 @@ What other options did we evaluate? Why were they rejected?
 
 ---
 
-## ADR-001: Use Next.js 14 App Router (Not Pages Router)
+## ADR-001: Use Next.js 16 App Router (Not Pages Router)
 
 **Date:** 2025-02-07  
 **Status:** Accepted  
@@ -68,7 +68,7 @@ Use **App Router** exclusively.
 ## ADR-002: Use Vercel Postgres (Not Supabase)
 
 **Date:** 2025-02-07  
-**Status:** Accepted  
+**Status:** ~~Accepted~~ → Superseded by ADR-009  
 **Decider:** Jigar
 
 ### Context
@@ -351,7 +351,43 @@ Copy this when adding a new ADR:
 
 If a decision is later overturned, move it here and link to the new ADR.
 
-### None yet
+### ADR-002: Vercel Postgres → Superseded by ADR-009 (Neon)
+
+---
+
+## ADR-009: Switch to Neon Serverless (From Vercel Postgres)
+
+**Date:** 2026-02-08  
+**Status:** Accepted  
+**Decider:** Jigar + Agent
+
+### Context
+When implementing Phase 1, we discovered that `@vercel/postgres` has been **deprecated** (last version 0.10.0, ~1 year old). Vercel has migrated all Postgres databases to Neon and recommends using the native Neon driver.
+
+### Decision
+Switch from `@vercel/postgres` to `@neondatabase/serverless`.
+
+### Consequences
+**Positive:**
+- Actively maintained driver (Neon's official package)
+- Same underlying technology (Vercel Postgres was Neon under the hood)
+- Supports HTTP and WebSocket connections
+- Full `node-postgres` compatibility
+- Better documentation and support
+
+**Negative:**
+- Required updating import statements and connection setup
+- Slightly different API (uses `neon()` function instead of `sql` tagged template)
+- Environment variable changed from `POSTGRES_URL` to `DATABASE_URL`
+
+### Alternatives Considered
+- **@neondatabase/vercel-postgres-compat:** A drop-in replacement package. Rejected because we preferred using the native driver for long-term maintainability.
+- **Keep using @vercel/postgres:** Rejected because it's deprecated and no longer maintained.
+
+### Migration Notes
+- Changed `import { sql } from '@vercel/postgres'` to `import { neon } from '@neondatabase/serverless'`
+- Updated `src/lib/db.ts` with new connection pattern
+- Changed `.env.local` to use `DATABASE_URL` instead of `POSTGRES_URL`
 
 ---
 

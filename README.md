@@ -94,11 +94,12 @@ npm run dev
 
 ```
 rooted-starter-kit/
-├── 📖 README.md                     ← You are here
-├── 📖 DEVELOPER_GUIDE.md            ← START HERE (comprehensive guide)
-├── 📖 rooted_master_prd_v2.md       ← Full product spec
-├── 📖 RULES.md                      ← Engineering rules
-├── 📖 current_task.md               ← Your current task
+├── 📁 dev-docs/                 ← Development documentation    
+│   ├── 📖 README.md                     ← You are here
+│   ├── 📖 DEVELOPER_GUIDE.md            ← START HERE (comprehensive guide)
+│   ├── 📖 rooted_master_prd_v2.md       ← Full product spec
+│   ├── 📖 RULES.md                      ← Engineering rules
+│   ├── 📖 current_task.md               ← Your current task
 │
 ├── 📁 docs/context/                 ← Living documentation
 │   ├── 01_architecture.md

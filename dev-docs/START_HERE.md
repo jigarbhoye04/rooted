@@ -113,7 +113,7 @@ npx create-next-app@latest . --typescript --tailwind --app --no-src-dir
 
 ```bash
 # Core dependencies
-npm install zod @vercel/postgres framer-motion
+npm install zod @neondatabase/serverless framer-motion
 
 # Development dependencies
 npm install -D @types/node
@@ -275,7 +275,7 @@ code .
    // This endpoint returns today's word from the database
    
    import { NextResponse } from 'next/server';
-   import { sql } from '@vercel/postgres';
+   import { neon } from '@neondatabase/serverless';
    import { DailyWordSchema } from '@/src/schemas/dailyWord';
    ```
 
@@ -453,12 +453,9 @@ head -20 docs/context/02_progress.md
 
 ### Database Connection Failed
 ```bash
-# 1. Verify .env.local has correct POSTGRES_URL
-# 2. Test connection:
-node -e "const { sql } = require('@vercel/postgres'); sql\`SELECT 1\`.then(console.log)"
-
-# 3. Check Vercel dashboard for connection string
-# 4. Ensure database is not paused (free tier auto-pauses)
+# 1. Verify .env.local has correct DATABASE_URL
+# 2. Check Neon dashboard for connection string at https://console.neon.tech
+# 3. Ensure database is not paused (free tier auto-pauses)
 ```
 
 ---

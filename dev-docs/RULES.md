@@ -352,7 +352,7 @@ test('gets user', async () => {
 ```typescript
 // ✅ CORRECT
 import { NextResponse } from 'next/server'; // External
-import { sql } from '@vercel/postgres'; // External
+import { neon } from '@neondatabase/serverless'; // External
 import { DailyWordSchema } from '@/schemas/dailyWord'; // Internal
 import { validateDate } from '@/lib/validators'; // Internal
 import './styles.css'; // Relative

@@ -1,18 +1,24 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
-const inter = Inter({
-    subsets: ['latin'],
-    variable: '--font-inter',
+const satoshi = localFont({
+    src: [
+        {
+            path: '../public/fonts/satoshi-variable.woff2',
+            weight: '300 900',
+            style: 'normal',
+        },
+        {
+            path: '../public/fonts/satoshi-variable-italic.woff2',
+            weight: '300 900',
+            style: 'italic',
+        },
+    ],
+    variable: '--font-satoshi',
     display: 'swap',
 });
 
-const playfair = Playfair_Display({
-    subsets: ['latin'],
-    variable: '--font-playfair',
-    display: 'swap',
-});
 
 export const metadata: Metadata = {
     title: 'Rooted - Daily Etymology',
@@ -26,7 +32,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+        <html lang="en" className={`${satoshi.variable}`}>
             <body className="antialiased">
                 {children}
             </body>

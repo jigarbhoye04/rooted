@@ -1,8 +1,8 @@
 # 01 - System Architecture
 
 **Project:** Rooted - Daily Etymology App  
-**Last Updated:** 2025-02-07  
-**Status:** Foundation Phase  
+**Last Updated:** 2026-02-08  
+**Status:** Phase 1 Complete  
 **Source:** Distilled from `rooted_master_prd_v2.md`
 
 ---
@@ -18,14 +18,14 @@ A daily web app that presents **one word per day** with an interactive visualiza
 ## 🛠 Tech Stack
 
 ### Frontend
-- **Framework:** Next.js 14+ (App Router)
+- **Framework:** Next.js 16+ (App Router)
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS
 - **Animation:** Framer Motion
 - **Visualization:** D3.js v7 + TopoJSON-Client
 
 ### Backend
-- **Database:** Vercel Postgres (Neon serverless)
+- **Database:** Neon Serverless Postgres (`@neondatabase/serverless`)
 - **API:** Next.js API Routes (serverless functions)
 - **Cron:** Vercel Cron (daily word rotation)
 

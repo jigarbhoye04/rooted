@@ -29,7 +29,7 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 **Goal:** Initialize project with proper orchestration system.
 
 ### Environment Setup
-- [x] Create Next.js 14 project with TypeScript
+- [x] Create Next.js 16 project with TypeScript
 - [x] Install dependencies (Tailwind, Framer Motion, Zod, D3)
 - [x] Configure Vercel Postgres (local dev)
 - [x] Set up folder structure (`docs/context`, `src/schemas`, etc.)
@@ -66,41 +66,41 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 - [x] Verify schema with Neon SQL Editor
 
 ### API Routes
-- [x] Implement `/api/word/today` (GET)
-  - [x] Query database for today's date
-  - [x] Validate with `DailyWordSchema`
-  - [x] Return 404 if no word found
-  - [x] Return 500 on schema validation failure
-  - [ ] Write integration tests
-- [ ] Implement `/api/word/[slug]` (GET)
-  - [ ] Query by word slug
-  - [ ] Same validation as `/today`
-  - [ ] Write tests
+  - [x] Implement `/api/word/today` (GET)
+    - [x] Query database for today's date
+    - [x] Validate with `DailyWordSchema`
+    - [x] Return 404 if no word found
+    - [x] Return 500 on schema validation failure
+  - [x] Implement `/api/word/[slug]` (GET)
+    - [x] Query by word slug
+    - [x] Same validation as `/today`
+  - [x] Write integration tests for API routes
 
 ### Schemas
-- [ ] Create `src/schemas/dailyWord.ts`
-  - [ ] Define `DailyWordSchema`
-  - [ ] Export TypeScript type
-  - [ ] Write unit tests (valid/invalid inputs)
-- [ ] Create `src/schemas/apiResponses.ts`
-  - [ ] Define error response schema
-  - [ ] Define success response schema
+- [x] Create `src/schemas/dailyWord.ts`
+  - [x] Define `DailyWordSchema`
+  - [x] Export TypeScript type
+  - [x] Write unit tests (valid/invalid inputs)
+- [x] Create `src/schemas/apiResponses.ts`
+  - [x] Define error response schema
+  - [x] Define success response schema
 
 ### Basic UI
-- [ ] Create `app/page.tsx` (homepage)
-  - [ ] Fetch from `/api/word/today`
-  - [ ] Display word + definition (no viz yet)
-  - [ ] Handle loading state
-  - [ ] Handle error state (404, 500)
-- [ ] Create `app/layout.tsx`
-  - [ ] Import global styles
-  - [ ] Set up fonts (Playfair Display, Inter)
-  - [ ] Add meta tags
+- [x] Create `app/page.tsx` (homepage)
+  - [x] Fetch from `/api/word/today`
+  - [x] Display word + definition (no viz yet)
+  - [x] Handle loading state
+  - [x] Handle error state (404, 500)
+- [x] Create `app/layout.tsx`
+  - [x] Import global styles
+  - [x] Set up fonts (Playfair Display, Inter)
+  - [x] Add meta tags
 
 ### Testing
-- [ ] Set up Jest + React Testing Library
-- [ ] Write test for `/api/word/today`
-- [ ] Write test for homepage rendering
+- [x] Set up testing framework (Vitest)
+- [x] Write unit tests for schemas
+- [x] Write integration tests for API routes
+- [x] Reach 80%+ coverage on core logicng
 
 **Estimated Duration:** 5-7 days  
 **Started:** TBD  

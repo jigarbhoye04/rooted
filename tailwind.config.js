@@ -7,8 +7,8 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                serif: ['Playfair Display', 'serif'],
-                sans: ['Inter', 'sans-serif'],
+                serif: ['var(--font-satoshi)', 'serif'],
+                sans: ['var(--font-satoshi)', 'sans-serif'],
             },
             colors: {
                 background: '#F9F9F9',
