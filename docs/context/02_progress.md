@@ -60,17 +60,17 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 **Goal:** Database + API basics working.
 
 ### Database
-- [ ] Create `daily_words` table in Vercel Postgres
-- [ ] Create indexes (`idx_publish_date`, `idx_root_family`)
-- [ ] Seed 3 sample words (one each: MAP, TREE, TIMELINE)
-- [ ] Verify schema with `psql` or Prisma Studio
+- [x] Create `daily_words` table in Neon Postgres
+- [x] Create indexes (`idx_publish_date`, `idx_root_family`)
+- [x] Seed 3 sample words (one each: MAP, TREE, TIMELINE)
+- [x] Verify schema with Neon SQL Editor
 
 ### API Routes
-- [ ] Implement `/api/word/today` (GET)
-  - [ ] Query database for today's date
-  - [ ] Validate with `DailyWordSchema`
-  - [ ] Return 404 if no word found
-  - [ ] Return 500 on schema validation failure
+- [x] Implement `/api/word/today` (GET)
+  - [x] Query database for today's date
+  - [x] Validate with `DailyWordSchema`
+  - [x] Return 404 if no word found
+  - [x] Return 500 on schema validation failure
   - [ ] Write integration tests
 - [ ] Implement `/api/word/[slug]` (GET)
   - [ ] Query by word slug

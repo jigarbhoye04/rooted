@@ -17,73 +17,69 @@ import { z } from 'zod';
 export const DailyWordSchema = z.object({
   // Primary key
   id: z.number().int().positive(),
-  
+
   // Date when this word is scheduled to appear
   // Format: YYYY-MM-DD (ISO 8601 date string)
   publish_date: z.string().regex(
     /^\d{4}-\d{2}-\d{2}$/,
     'Date must be in YYYY-MM-DD format'
   ),
-  
+
   // The word itself (e.g., "Sabotage")
   word: z.string().min(1, 'Word cannot be empty').max(100),
-  
+
   // Dictionary definition
   definition: z.string().min(1, 'Definition cannot be empty'),
-  
+
   // Phonetic pronunciation (e.g., "/ˈsæbətɑːʒ/")
-  phonetic: z.string().max(100).optional(),
-  
+  phonetic: z.string().max(100).nullable().optional(),
+
   // Optional audio pronunciation URL (e.g., link to Forvo)
-  pronunciation_audio_url: z.string().url().optional(),
-  
+  pronunciation_audio_url: z.string().url().nullable().optional(),
+
   // Visualization type determines which visualizer component to use
-  visualization_type: z.enum(['MAP', 'TREE', 'TIMELINE', 'GRID'], {
-    errorMap: () => ({ 
-      message: 'Visualization type must be MAP, TREE, TIMELINE, or GRID' 
-    })
-  }),
-  
+  visualization_type: z.enum(['MAP', 'TREE', 'TIMELINE', 'GRID'] as const),
+
   // Main content (JSONB field in database)
   // Structure varies based on visualization_type
   // See: docs/context/04_schema_contracts.md for type-specific schemas
   content_json: z.object({
     // One-sentence teaser shown at top of page
     hook: z.string().min(1, 'Hook cannot be empty'),
-    
+
     // "Did you know?" section content
     fun_fact: z.string().min(1, 'Fun fact cannot be empty'),
-    
+
     // Optional deep dive content (unlocked with Nerd Mode)
     nerd_mode: z.object({
       ipa_full: z.string().optional(),
       disputed_origin: z.string().optional(),
       earliest_citation: z.string().optional(),
     }).optional(),
-    
+
     // Type-specific visualization data
     // Validated separately based on visualization_type
     // We use z.any() here because the structure varies
     visual_data: z.any(),
   }),
-  
+
   // Theme color for this word (hex color code)
   // Used for scroll indicators, map routes, tree links
   accent_color: z.string().regex(
     /^#[0-9A-Fa-f]{6}$/,
     'Accent color must be a valid hex code (e.g., #FF5733)'
   ).default('#000000'),
-  
+
   // Timestamp when word was created (ISO 8601 datetime)
-  created_at: z.string().datetime().optional(),
-  
+  created_at: z.string().nullable().optional(),
+
   // Name of admin who approved this word
-  approved_by: z.string().max(50).optional(),
-  
+  approved_by: z.string().max(50).nullable().optional(),
+
   // Root family for Wordception feature
   // e.g., "PIE_kaput" for words derived from Latin "caput"
   // Used to find related words for ghost overlay
-  root_family: z.string().max(50).optional(),
+  root_family: z.string().max(50).nullable().optional(),
 });
 
 /**
@@ -115,9 +111,9 @@ export const DailyWordUpdateSchema = DailyWordSchema
  * Omits auto-generated fields (id, created_at)
  */
 export const DailyWordCreateSchema = DailyWordSchema
-  .omit({ 
-    id: true, 
-    created_at: true 
+  .omit({
+    id: true,
+    created_at: true
   })
   .strict();
 
