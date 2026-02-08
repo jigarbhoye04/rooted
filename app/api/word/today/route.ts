@@ -18,7 +18,12 @@ import { z } from 'zod';
 import { getWordByDate, getTodayDateString } from '@/src/lib/db';
 import { NotFoundErrors, CommonErrors } from '@/src/schemas/apiResponses';
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
+    // Method validation (required by security-check.sh, though App Router handles this via function name)
+    if (request.method !== 'GET') {
+        return NextResponse.json(CommonErrors.METHOD_NOT_ALLOWED, { status: 405 });
+    }
+
     try {
         // Get current date in YYYY-MM-DD format
         const today = getTodayDateString();
