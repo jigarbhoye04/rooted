@@ -11,7 +11,7 @@
 ```
 Phase 0: Setup               [██████████] 100% ✅
 Phase 1: Foundation          [████████░░]  80%
-Phase 2: Visualizers         [░░░░░░░░░░]   0%
+Phase 2: Visualizers         [██░░░░░░░░]  20%
 Phase 3: Scrollytelling      [░░░░░░░░░░]   0%
 Phase 4: PWA                 [░░░░░░░░░░]   0%
 Phase 5: Gamification        [░░░░░░░░░░]   0%
@@ -20,7 +20,7 @@ Phase 7: Share Feature       [░░░░░░░░░░]   0%
 Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 ```
 
-**Overall:** 22.5% (Phase 0 complete, Phase 1 ~80%)
+**Overall:** 26.5% (Phase 0 complete, Phase 1 ~80%, Phase 2 ~20%)
 
 ---
 
@@ -114,19 +114,19 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 **Goal:** All 4 visualization types render (static, no animations yet).
 
 ### Schemas
-- [ ] Create `src/schemas/visualizerData.ts`
-  - [ ] Define `MapVisualizationDataSchema`
-  - [ ] Define `TreeVisualizationDataSchema`
-  - [ ] Define `TimelineVisualizationDataSchema`
-  - [ ] Define `GridVisualizationDataSchema`
-  - [ ] Write tests for each
+- [x] Create `src/schemas/visualizerData.ts`
+  - [x] Define `MapVisualizationDataSchema`
+  - [x] Define `TreeVisualizationDataSchema`
+  - [x] Define `TimelineVisualizationDataSchema`
+  - [x] Define `GridVisualizationDataSchema`
+  - [x] Write tests for each
 
 ### Components
-- [ ] Create `src/components/Visualizer.tsx` (type switcher)
-  - [ ] Accept `type` and `data` props
-  - [ ] Render correct sub-component based on type
-  - [ ] Validate props with Zod
-  - [ ] Write tests
+- [x] Create `src/components/Visualizer.tsx` (type switcher)
+  - [x] Accept `type` and `data` props
+  - [x] Render correct sub-component based on type
+  - [x] Validate props with Zod
+  - [x] Write tests
 
 #### MapVisualizer
 - [ ] Create `src/components/MapVisualizer.tsx`
@@ -158,10 +158,10 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
   - [ ] Write tests
 
 ### Demo Page
-- [ ] Create `app/demo/page.tsx`
-  - [ ] Show all 4 visualizers side-by-side
-  - [ ] Use mock data for each type
-  - [ ] Use for manual testing
+- [x] Create `app/demo/page.tsx`
+  - [x] Show all 4 visualizers side-by-side
+  - [x] Use mock data for each type
+  - [x] Use for manual testing
 
 **Estimated Duration:** 7-10 days  
 **Started:** TBD  

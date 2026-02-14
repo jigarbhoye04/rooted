@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { DailyWord } from '@/src/schemas/dailyWord';
+import Visualizer from '@/src/components/Visualizer';
 
 type PageState =
     | { status: 'loading' }
@@ -127,6 +128,15 @@ function WordDisplay({ word }: { word: DailyWord }): React.JSX.Element {
                         </div>
                     )}
                 </div>
+
+                {/* Visualization preview */}
+                {word.content_json?.visual_data && (
+                    <Visualizer
+                        type={word.visualization_type}
+                        data={word.content_json.visual_data}
+                        accentColor={word.accent_color}
+                    />
+                )}
 
                 {/* Fun fact teaser */}
                 {word.content_json?.fun_fact && (
