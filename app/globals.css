@@ -2,24 +2,125 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   Design System Tokens
+   ======================================== */
 :root {
-  --background: #F9F9F9;
+  /* Surface colors */
+  --background: #FDFCF9;
   --foreground: #1A1A1A;
-  --muted: #6B7280;
+  --muted: #8C8577;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+
+  /* Border & divider */
+  --border: #E9E4D9;
+  --border-subtle: #F0EDE6;
+
+  /* Accent palette */
+  --accent-warm: #6F4E37;
+  --accent-warm-light: rgba(111, 78, 55, 0.10);
+  --accent-gold: #C4A265;
+
+  /* Feedback colors */
+  --error: #C0392B;
+  --error-light: rgba(192, 57, 43, 0.08);
+
+  /* Typography */
+  --text-primary: #2C2C2C;
+  --text-secondary: #555555;
+  --text-tertiary: #888888;
+
+  /* Animation */
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-base: 600ms;
+  --duration-slow: 1000ms;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-satoshi), system-ui, sans-serif;
   background-color: var(--background);
   color: var(--foreground);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: 'Playfair Display', serif;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-satoshi), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+::selection {
+  background-color: var(--accent-warm-light);
+  color: var(--accent-warm);
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.15; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up-subtle {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.03),
+    0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.glass-card-elevated {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.02);
 }

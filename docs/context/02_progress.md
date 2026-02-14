@@ -10,7 +10,7 @@
 
 ```
 Phase 0: Setup               [██████████] 100% ✅
-Phase 1: Foundation          [█░░░░░░░░░]  10%
+Phase 1: Foundation          [████████░░]  80%
 Phase 2: Visualizers         [░░░░░░░░░░]   0%
 Phase 3: Scrollytelling      [░░░░░░░░░░]   0%
 Phase 4: PWA                 [░░░░░░░░░░]   0%
@@ -20,7 +20,7 @@ Phase 7: Share Feature       [░░░░░░░░░░]   0%
 Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 ```
 
-**Overall:** 12.5% (1/8 phases complete)
+**Overall:** 22.5% (Phase 0 complete, Phase 1 ~80%)
 
 ---
 
@@ -87,14 +87,15 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 
 ### Basic UI
 - [x] Create `app/page.tsx` (homepage)
-  - [x] Fetch from `/api/word/today`
+  - [x] Fetch from `/api/word/today` (client-side)
   - [x] Display word + definition (no viz yet)
-  - [x] Handle loading state
-  - [x] Handle error state (404, 500)
+  - [x] Handle loading state (skeleton UI)
+  - [x] Handle error state (404, 500 with retry)
 - [x] Create `app/layout.tsx`
   - [x] Import global styles
-  - [x] Set up fonts (Playfair Display, Inter)
-  - [x] Add meta tags
+  - [x] Set up fonts (Satoshi variable)
+  - [x] Add meta tags (OG, Twitter)
+  - [x] Semantic HTML (header/main/footer)
 
 ### Testing
 - [x] Set up testing framework (Vitest)
