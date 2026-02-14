@@ -1,5 +1,5 @@
 ---
-name: rooted-master
+trigger: model_decision
 description: Master skill for Rooted etymology app. Handles content pipeline, visualizations, admin tools, and share cards. Use for any Rooted-related task.
 ---
 
@@ -14,7 +14,7 @@ I coordinate all Rooted functionality. Based on your request, I'll use the appro
 - **rooted-admin-tools**: For database and approval workflows
 - **rooted-share-cards**: For generating social media images
 
-## Routing Logic
+## Routing Logics
 
 The individual skills are located in the `/skills` directory. I use the following routing logic to determine which skill to use:
 

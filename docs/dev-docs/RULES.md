@@ -3,6 +3,9 @@
 **Project:** Rooted  
 **Purpose:** Non-negotiable rules that MUST be followed by all developers (human and AI).
 
+> [!IMPORTANT]
+> **AI Models:** You MUST read [docs/context/00_ai_workflow.md](/docs/context/00_ai_workflow.md) before starting any task. It defines your pre-work and post-work checklists.
+
 ---
 
 ## 🔐 Security Rules (CRITICAL - NEVER VIOLATE)
