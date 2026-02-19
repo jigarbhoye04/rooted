@@ -1,8 +1,8 @@
 /**
- * Component tests for MapVisualizer
+ * Component tests for MapVisualizer v2 (WanderWord-style)
  *
  * Tests that the MapVisualizer renders an SVG, plots the correct number of
- * points, and handles missing routes gracefully.
+ * points based on activeStepIndex, and handles missing routes gracefully.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -88,20 +88,20 @@ afterEach(() => {
 
 describe('MapVisualizer', () => {
     it('renders the map container with data-testid', (): void => {
-        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" />);
+        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" activeStepIndex={0} />);
         expect(screen.getByTestId('map-visualizer')).toBeInTheDocument();
     });
 
     it('renders an SVG element', (): void => {
         const { container } = render(
-            <MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" />,
+            <MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" activeStepIndex={0} />,
         );
         const svg = container.querySelector('svg');
         expect(svg).toBeInTheDocument();
     });
 
-    it('plots the correct number of point markers', async (): Promise<void> => {
-        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" />);
+    it('plots visible points up to activeStepIndex', async (): Promise<void> => {
+        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" activeStepIndex={2} />);
 
         await waitFor(() => {
             expect(screen.getByTestId('map-point-1')).toBeInTheDocument();
@@ -110,19 +110,32 @@ describe('MapVisualizer', () => {
         });
     });
 
-    it('displays location name labels', async (): Promise<void> => {
-        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" />);
+    it('only shows first point when activeStepIndex is 0', async (): Promise<void> => {
+        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" activeStepIndex={0} />);
 
         await waitFor(() => {
-            expect(screen.getByTestId('map-label-1')).toHaveTextContent('Ethiopia');
-            expect(screen.getByTestId('map-label-2')).toHaveTextContent('Yemen');
-            expect(screen.getByTestId('map-label-3')).toHaveTextContent('Istanbul');
+            expect(screen.getByTestId('map-point-1')).toBeInTheDocument();
+        });
+
+        // Points 2 and 3 should not be rendered yet
+        expect(screen.queryByTestId('map-point-2')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('map-point-3')).not.toBeInTheDocument();
+    });
+
+    it('displays label for active point', async (): Promise<void> => {
+        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" activeStepIndex={0} />);
+
+        await waitFor(() => {
+            const label = screen.getByTestId('map-label-1');
+            expect(label).toBeInTheDocument();
+            // Active label should contain the country code and full name
+            expect(label.textContent).toContain('ETHIOPIA');
         });
     });
 
     it('handles missing routes gracefully (routes undefined)', (): void => {
         expect(() => {
-            render(<MapVisualizer data={MAP_DATA_NO_ROUTES} accentColor="#2563EB" />);
+            render(<MapVisualizer data={MAP_DATA_NO_ROUTES} accentColor="#2563EB" activeStepIndex={0} />);
         }).not.toThrow();
         expect(screen.getByTestId('map-visualizer')).toBeInTheDocument();
     });
@@ -133,11 +146,11 @@ describe('MapVisualizer', () => {
             routes: [],
         };
         expect(() => {
-            render(<MapVisualizer data={dataWithEmptyRoutes} accentColor="#2563EB" />);
+            render(<MapVisualizer data={dataWithEmptyRoutes} accentColor="#2563EB" activeStepIndex={0} />);
         }).not.toThrow();
     });
 
-    it('renders with different projection types', (): void => {
+    it('renders with naturalEarth projection regardless of data projection', (): void => {
         const projections: MapVisualizationData['projection'][] = [
             'orthographic',
             'mercator',
@@ -149,6 +162,7 @@ describe('MapVisualizer', () => {
                 <MapVisualizer
                     data={{ ...MAP_DATA_WITH_ROUTES, projection }}
                     accentColor="#D97706"
+                    activeStepIndex={0}
                 />,
             );
             expect(screen.getByTestId('map-visualizer')).toBeInTheDocument();
@@ -157,7 +171,7 @@ describe('MapVisualizer', () => {
     });
 
     it('fetches the TopoJSON world map', async (): Promise<void> => {
-        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" />);
+        render(<MapVisualizer data={MAP_DATA_WITH_ROUTES} accentColor="#D97706" activeStepIndex={0} />);
 
         await waitFor(() => {
             expect(fetch).toHaveBeenCalledWith('/topojson/world-110m.json');

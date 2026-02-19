@@ -3,12 +3,14 @@
 import { lazy, Suspense } from 'react';
 
 /**
- * Visualizer — Type switcher component
+ * Visualizer — Lightweight type switcher component
  *
- * Renders a placeholder card for each visualization type (MAP, TREE, TIMELINE, GRID).
- * Actual D3 visualizations will replace these placeholders in later tasks.
+ * Renders placeholder cards for each visualization type.
+ * Full-page experiences are handled by dedicated page components
+ * (MapPage, TreePage, etc.) — this component is used for previews
+ * and the demo page only.
  *
- * Props are validated with VisualizerPropsSchema in dev mode.
+ * Props are validated with VisualizationDataSchema at runtime.
  */
 
 import type {
@@ -92,14 +94,14 @@ export default function Visualizer({
             {/* Type-specific content */}
             {validData.type === 'MAP' && (
                 <Suspense fallback={<MapPlaceholder data={validData as MapVisualizationData} accentColor={accentColor} />}>
-                    <LazyMapVisualizer data={validData as MapVisualizationData} accentColor={accentColor} />
+                    <LazyMapVisualizer data={validData as MapVisualizationData} accentColor={accentColor} activeStepIndex={0} />
                 </Suspense>
             )}
             {validData.type === 'TREE' && <TreePlaceholder data={validData as TreeVisualizationData} accentColor={accentColor} />}
             {validData.type === 'TIMELINE' && <TimelinePlaceholder data={validData as TimelineVisualizationData} accentColor={accentColor} />}
             {validData.type === 'GRID' && <GridPlaceholder data={validData as GridVisualizationData} />}
 
-            {/* Footer — hidden for MAP (which has a real visualizer now) */}
+            {/* Footer — hidden for MAP (which has a real visualizer) */}
             {validData.type !== 'MAP' && (
                 <div className="mt-6 pt-4 border-t border-border-subtle">
                     <p className="text-[10px] text-muted/50 text-center tracking-wider uppercase">

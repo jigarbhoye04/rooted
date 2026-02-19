@@ -52,11 +52,17 @@ export default function RootLayout({
     return (
         <html lang="en" className={satoshi.variable}>
             <body className="font-sans antialiased bg-background text-foreground min-h-screen flex flex-col">
-                <header className="w-full px-6 py-4 flex items-center justify-between border-b border-neutral-200/60">
-                    <Link href="/" className="text-lg font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity">
-                        rooted<span className="text-accent-warm">.</span>
-                    </Link>
-                    <nav aria-label="Main navigation">
+                <header className="w-full px-6 py-4 flex items-center justify-between border-b border-neutral-200/60 transition-all duration-300">
+                    <div className="flex items-center shrink-0 w-[200px]">
+                        <Link href="/" className="text-lg font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity">
+                            rooted<span className="text-accent-warm">.</span>
+                        </Link>
+                    </div>
+
+                    {/* Portal Target for Page-Specific Header Content */}
+                    <div id="header-center-portal" className="flex-1 flex justify-center items-center pointer-events-none" />
+
+                    <nav aria-label="Main navigation" className="shrink-0 w-[200px] flex justify-end">
                         <span className="text-xs font-medium uppercase tracking-widest text-muted">
                             Daily Etymology
                         </span>

@@ -131,12 +131,23 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 
 #### MapVisualizer
 - [x] Create `src/components/MapVisualizer.tsx`
+  - [x] MapVisualizer v3.2 (Interactive D3 Map)
+  - [x] Zoom/Pan support (d3-zoom)
+  - [x] Auto-Focus Camera (follows narrative)
+  - [x] HTML-based Cards (`foreignObject` for wrapping)
+  - [x] Smooth Travel Animations
+  - [x] Dark Mode / Archive Style Polish
+  - [x] Header Integration (Definition in top bar, Badge/Date in Main Header)
+  - [x] Sidebar Navigation (Click to jump)
+  - [x] History Navigation (Prev/Next/Today buttons)
+  - [x] Smart History (Skip empty days, Filter by Type, Hover Dropdown with delay)
   - [x] Load TopoJSON world map
-  - [x] Render map with D3 geo projections (orthographic/mercator/naturalEarth)
+  - [x] Render map with D3 geo projections (naturalEarth1 fixed)
   - [x] Plot points from `visual_data.points`
-  - [x] Draw bezier route curves between connected points
-  - [x] Static rendering (no animations)
-  - [x] Write tests (8 tests)
+  - [x] Draw animated bezier route curves
+  - [x] Full-page interactive experience (MapPage)
+  - [x] Sidebar with synced content & animations
+  - [ ] Write integration tests (needs update)
 
 #### TreeVisualizer
 - [ ] Create `src/components/TreeVisualizer.tsx`

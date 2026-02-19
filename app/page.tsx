@@ -1,8 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { DailyWord } from '@/src/schemas/dailyWord';
-import Visualizer from '@/src/components/Visualizer';
+
+/**
+ * Homepage — fetches today's word and dispatches to the correct full-page experience
+ *
+ * Each visualization type gets its own dedicated page component:
+ * MAP → MapPage | TREE → TreePage | TIMELINE → TimelinePage | GRID → GridPage
+ */
+
+const LazyMapPage = lazy(() => import('@/src/pages/MapPage'));
+const LazyTreePage = lazy(() => import('@/src/pages/TreePage'));
+const LazyTimelinePage = lazy(() => import('@/src/pages/TimelinePage'));
+const LazyGridPage = lazy(() => import('@/src/pages/GridPage'));
 
 type PageState =
     | { status: 'loading' }
@@ -13,14 +25,31 @@ type PageState =
 export default function Home(): React.JSX.Element {
     const [state, setState] = useState<PageState>({ status: 'loading' });
 
+    const searchParams = useSearchParams();
+    const dateParam = searchParams.get('date');
+
     const fetchWord = useCallback(async (): Promise<void> => {
         setState({ status: 'loading' });
 
         try {
-            const response = await fetch('/api/word/today');
+            // Build URL with optional date param
+            let url = '/api/word/today';
+            if (dateParam) {
+                url += `?date=${dateParam}`;
+            }
+
+            const response = await fetch(url);
 
             if (response.status === 404) {
                 setState({ status: 'not-found' });
+                return;
+            }
+
+            if (response.status === 400) { // Future date error
+                setState({
+                    status: 'error',
+                    message: 'Cannot view future words.',
+                });
                 return;
             }
 
@@ -40,7 +69,7 @@ export default function Home(): React.JSX.Element {
                 message: 'Unable to connect. Check your internet and try again.',
             });
         }
-    }, []);
+    }, [dateParam]);
 
     useEffect(() => {
         void fetchWord();
@@ -58,100 +87,46 @@ export default function Home(): React.JSX.Element {
         return <ErrorState message={state.message} onRetry={fetchWord} />;
     }
 
-    return <WordDisplay word={state.word} />;
+    // Dispatch to the correct full-page experience based on visualization type
+    return (
+        <Suspense fallback={<LoadingSkeleton />}>
+            <WordPageDispatcher word={state.word} />
+        </Suspense>
+    );
 }
 
 /* ========================================
-   Word Display
+   Type Dispatcher
    ======================================== */
 
-function WordDisplay({ word }: { word: DailyWord }): React.JSX.Element {
-    const formattedDate = formatDate(word.publish_date);
+function WordPageDispatcher({ word }: { word: DailyWord }): React.JSX.Element {
+    switch (word.visualization_type) {
+        case 'MAP':
+            return <LazyMapPage word={word} />;
+        case 'TREE':
+            return <LazyTreePage word={word} />;
+        case 'TIMELINE':
+            return <LazyTimelinePage word={word} />;
+        case 'GRID':
+            return <LazyGridPage word={word} />;
+        default:
+            return <FallbackPage word={word} />;
+    }
+}
 
+/* ========================================
+   Fallback Page (unknown type)
+   ======================================== */
+
+function FallbackPage({ word }: { word: DailyWord }): React.JSX.Element {
     return (
-        <section className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 py-16">
-            <div className="w-full max-w-2xl animate-fade-in">
-                {/* Date badge */}
-                <div className="flex justify-center mb-10">
-                    <span className="inline-flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase rounded-full bg-accent-warm-light text-accent-warm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent-warm animate-pulse" />
-                        {formattedDate}
-                    </span>
-                </div>
-
-                {/* Word title */}
-                <h1
-                    className="text-6xl sm:text-7xl md:text-8xl font-black text-center tracking-tight text-text-primary mb-4"
-                    style={{ animationDelay: '100ms' }}
-                >
-                    {word.word}
-                </h1>
-
-                {/* Phonetic */}
+        <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
+            <div className="text-center max-w-md">
+                <h1 className="text-5xl font-black text-text-primary mb-4">{word.word}</h1>
                 {word.phonetic && (
-                    <p className="text-center text-lg text-muted italic mb-12 animate-slide-up-subtle" style={{ animationDelay: '200ms' }}>
-                        {word.phonetic}
-                    </p>
+                    <p className="text-lg text-muted italic mb-8">{word.phonetic}</p>
                 )}
-
-                {/* Definition card */}
-                <div
-                    className="glass-card-elevated p-10 sm:p-12 mb-8 relative overflow-hidden opacity-0 animate-slide-up"
-                    style={{ animationDelay: '300ms' }}
-                >
-                    {/* Accent bar */}
-                    <div
-                        className="absolute top-0 left-0 w-full h-1"
-                        style={{ backgroundColor: word.accent_color }}
-                    />
-
-                    {/* Viz type badge */}
-                    <div className="flex justify-end mb-6">
-                        <span className="px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full border border-border text-muted">
-                            {word.visualization_type}
-                        </span>
-                    </div>
-
-                    <p className="text-xl sm:text-2xl leading-relaxed text-text-secondary font-medium">
-                        {word.definition}
-                    </p>
-
-                    {/* Hook / Quick Insight */}
-                    {word.content_json?.hook && (
-                        <div className="mt-8 pt-8 border-t border-border-subtle">
-                            <h3 className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-3">
-                                Quick Insight
-                            </h3>
-                            <p className="text-base sm:text-lg text-text-secondary leading-relaxed">
-                                {word.content_json.hook}
-                            </p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Visualization preview */}
-                {word.content_json?.visual_data && (
-                    <Visualizer
-                        type={word.visualization_type}
-                        data={word.content_json.visual_data}
-                        accentColor={word.accent_color}
-                    />
-                )}
-
-                {/* Fun fact teaser */}
-                {word.content_json?.fun_fact && (
-                    <div
-                        className="glass-card p-8 opacity-0 animate-slide-up"
-                        style={{ animationDelay: '500ms' }}
-                    >
-                        <h3 className="text-[10px] font-bold text-accent-gold uppercase tracking-[0.2em] mb-3">
-                            Did You Know?
-                        </h3>
-                        <p className="text-base text-text-secondary leading-relaxed">
-                            {word.content_json.fun_fact}
-                        </p>
-                    </div>
-                )}
+                <p className="text-xl text-text-secondary leading-relaxed">{word.definition}</p>
             </div>
         </section>
     );
@@ -163,40 +138,28 @@ function WordDisplay({ word }: { word: DailyWord }): React.JSX.Element {
 
 function LoadingSkeleton(): React.JSX.Element {
     return (
-        <section
-            className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 py-16"
-            aria-label="Loading today's word"
-            role="status"
-        >
+        <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
             <div className="w-full max-w-2xl">
-                {/* Date badge skeleton */}
+                {/* Title skeleton */}
                 <div className="flex justify-center mb-10">
-                    <div className="h-7 w-40 rounded-full bg-neutral-200 animate-skeleton" />
+                    <div className="h-4 w-32 rounded-full bg-neutral-100 animate-skeleton" />
+                </div>
+                <div className="flex flex-col items-center space-y-4 mb-16">
+                    <div className="h-16 w-72 rounded-2xl bg-neutral-100 animate-skeleton" style={{ animationDelay: '100ms' }} />
+                    <div className="h-5 w-40 rounded-lg bg-neutral-100 animate-skeleton" style={{ animationDelay: '200ms' }} />
                 </div>
 
-                {/* Word skeleton */}
-                <div className="flex justify-center mb-4">
-                    <div className="h-16 sm:h-20 w-72 sm:w-96 rounded-2xl bg-neutral-200 animate-skeleton" />
-                </div>
-
-                {/* Phonetic skeleton */}
-                <div className="flex justify-center mb-12">
-                    <div className="h-5 w-32 rounded-full bg-neutral-100 animate-skeleton" style={{ animationDelay: '200ms' }} />
-                </div>
-
-                {/* Card skeleton */}
-                <div className="glass-card-elevated p-10 sm:p-12">
+                {/* Definition card skeleton */}
+                <div className="glass-card p-10 sm:p-12">
                     <div className="flex justify-end mb-6">
-                        <div className="h-6 w-20 rounded-full bg-neutral-100 animate-skeleton" style={{ animationDelay: '100ms' }} />
+                        <div className="h-6 w-16 rounded-full bg-neutral-100 animate-skeleton" style={{ animationDelay: '300ms' }} />
                     </div>
                     <div className="space-y-3">
-                        <div className="h-5 w-full rounded-lg bg-neutral-200 animate-skeleton" style={{ animationDelay: '300ms' }} />
-                        <div className="h-5 w-5/6 rounded-lg bg-neutral-200 animate-skeleton" style={{ animationDelay: '400ms' }} />
-                        <div className="h-5 w-3/4 rounded-lg bg-neutral-200 animate-skeleton" style={{ animationDelay: '500ms' }} />
+                        <div className="h-6 w-full rounded-lg bg-neutral-100 animate-skeleton" style={{ animationDelay: '400ms' }} />
+                        <div className="h-6 w-4/5 rounded-lg bg-neutral-100 animate-skeleton" style={{ animationDelay: '500ms' }} />
+                        <div className="h-6 w-3/5 rounded-lg bg-neutral-100 animate-skeleton" style={{ animationDelay: '600ms' }} />
                     </div>
-
                     <div className="mt-8 pt-8 border-t border-border-subtle">
-                        <div className="h-3 w-24 rounded bg-neutral-100 animate-skeleton mb-3" style={{ animationDelay: '600ms' }} />
                         <div className="h-4 w-full rounded-lg bg-neutral-100 animate-skeleton" style={{ animationDelay: '700ms' }} />
                         <div className="h-4 w-2/3 rounded-lg bg-neutral-100 animate-skeleton mt-2" style={{ animationDelay: '800ms' }} />
                     </div>
@@ -212,7 +175,7 @@ function LoadingSkeleton(): React.JSX.Element {
 
 function EmptyState(): React.JSX.Element {
     return (
-        <section className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 py-16">
+        <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
             <div className="text-center max-w-md animate-fade-in">
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-accent-warm-light flex items-center justify-center">
                     <span className="text-2xl" role="img" aria-label="seedling">🌱</span>
@@ -241,7 +204,7 @@ function ErrorState({
     onRetry: () => void;
 }): React.JSX.Element {
     return (
-        <section className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 py-16">
+        <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
             <div className="text-center max-w-md animate-fade-in">
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-error-light flex items-center justify-center">
                     <span className="text-2xl" role="img" aria-label="warning">⚠️</span>
@@ -262,17 +225,4 @@ function ErrorState({
             </div>
         </section>
     );
-}
-
-/* ========================================
-   Helpers
-   ======================================== */
-
-function formatDate(dateString: string): string {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    });
 }
