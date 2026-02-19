@@ -35,6 +35,21 @@
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-base: 600ms;
   --duration-slow: 1000ms;
+
+  /* Archival palette (WanderWord-inspired) */
+  --archival-stroke: #1A1A1A;
+  --archival-card: #F5F3EE;
+}
+
+/* ========================================
+   Map Archival Utilities
+   ======================================== */
+.map-mono {
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 /* ========================================

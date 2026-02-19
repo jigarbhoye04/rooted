@@ -1,37 +1,37 @@
 # Current Task
 
-**Task ID:** TASK-007  
-**Phase:** Post-Launch — Content Pipeline  
+**Task ID:** TASK-008  
+**Phase:** Visualization — Map & Architecture  
 **Created:** 2026-02-19  
-**Status:** ✅ Complete
+**Status:** 🏗️ In Verification
 
 ---
 
 ## 🎯 Objective
 
-Seed 100 etymology words into the Neon database with full metadata, spanning 4 visualization types (MAP, TREE, TIMELINE, GRID). Create validation and batch seeding scripts.
+Complete overhaul of the Map Visualization to a "WanderWord" archival style, and pivot architecture to full-page experiences for each visualization type.
 
 ---
 
 ## 📊 Definition of Done
 
-- [x] Create Claude generation prompt (`scripts/content/claude-prompt.md`)
-- [x] Create validation script (`scripts/validate-seed.ts`)
-- [x] Create batch seeding script (`scripts/seed-batch.ts`)
-- [x] Generate 100 words across 4 visualization types (25 each)
-- [x] Generate `seed-words.json` via `scripts/content/generate-seed.ts`
-- [x] Validate with `scripts/validate-seed.ts` — 0 failures
-- [x] Seed to Neon database — 100 words (IDs 6–107)
-- [x] Publish dates: 2026-02-20 → 2026-05-30
-- [x] Update `docs/context/02_progress.md`
+- [x] Build `MapVisualizer` v2 (flat archival style, animated Bezier routes)
+- [x] Build `MapPlaybackControls` (play/pause, step navigation)
+- [x] Build `MapSidebar` (synced context, migration log, animations)
+- [x] Refactor Architecture: `page.tsx` dispatches to full-page components (`MapPage`, `TreePage`, etc.)
+- [x] Create `MapPage` (full-page layout with header bar)
+- [x] **[NEW]** Polish UI (fix map skew, consistent icons, sidebar layout, missing animations)
+- [x] Revert `Visualizer.tsx` to preview-only mode
+- [ ] Update tests for new component structures
+- [ ] Manual browser verification (User Review)
 
 ---
 
 ## 🚀 Next Task
 
-**TASK-008:** Implement TreeVisualizer (Static D3 Rendering)
+**TASK-009:** Implement TreeVisualizer (Interactive D3 Tree)
 
 ---
 
 **Last Updated:** 2026-02-19  
-**Status:** Complete
+**Status:** In Verification

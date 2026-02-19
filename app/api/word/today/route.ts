@@ -25,13 +25,34 @@ export async function GET(request: Request): Promise<NextResponse> {
     }
 
     try {
-        // Get current date in YYYY-MM-DD format
-        const today = getTodayDateString();
+        // Parse query params for optional date
+        const { searchParams } = new URL(request.url);
+        const dateParam = searchParams.get('date');
 
-        // Query database for today's word
-        const word = await getWordByDate(today);
+        // Regex for YYYY-MM-DD
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-        // Check if word exists for today
+        let targetDate: string;
+
+        if (dateParam && dateRegex.test(dateParam)) {
+            targetDate = dateParam;
+            // Optional: Prevent future dates?
+            const today = getTodayDateString();
+            if (targetDate > today) {
+                return NextResponse.json(
+                    { error: 'Cannot view future words' },
+                    { status: 400 }
+                );
+            }
+        } else {
+            // Default to today
+            targetDate = getTodayDateString();
+        }
+
+        // Query database for target word
+        const word = await getWordByDate(targetDate);
+
+        // Check if word exists
         if (!word) {
             return NextResponse.json(
                 NotFoundErrors.WORD_NOT_FOUND,
