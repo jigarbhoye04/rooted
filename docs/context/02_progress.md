@@ -63,6 +63,7 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 - [x] Create `daily_words` table in Neon Postgres
 - [x] Create indexes (`idx_publish_date`, `idx_root_family`)
 - [x] Seed 3 sample words (one each: MAP, TREE, TIMELINE)
+- [x] Seed 100 production words (25 each: MAP, TREE, TIMELINE, GRID) — IDs 6–107, dates 2026-02-20 → 2026-05-30
 - [x] Verify schema with Neon SQL Editor
 
 ### API Routes
@@ -388,8 +389,12 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 ## 🚀 Post-Launch (Beyond Week 11)
 
 ### Content Pipeline
-- [ ] Create Python script `scripts/ingest.py`
-- [ ] Create Python script `scripts/transform.py`
+- [x] Create Claude generation prompt (`scripts/content/claude-prompt.md`)
+- [x] Create word data files (MAP/TREE/TIMELINE/GRID × 25 each)
+- [x] Create seed generator (`scripts/content/generate-seed.ts`)
+- [x] Create validation script (`scripts/validate-seed.ts`)
+- [x] Create batch seeding script (`scripts/seed-batch.ts`)
+- [x] Seed 100 words into Neon DB (2026-02-19)
 - [ ] Create admin dashboard `admin/review.html`
 - [ ] Set up Vercel Cron for daily rotation
 

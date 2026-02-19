@@ -1,37 +1,35 @@
 # Current Task
 
-**Task ID:** TASK-005  
-**Phase:** Phase 2 - Visualizers  
-**Created:** 2026-02-14  
+**Task ID:** TASK-007  
+**Phase:** Post-Launch — Content Pipeline  
+**Created:** 2026-02-19  
 **Status:** ✅ Complete
 
 ---
 
 ## 🎯 Objective
 
-Implement the `MapVisualizer` component with static D3 rendering. Render an SVG world map using D3 geo projections, plot numbered point markers, draw bezier route curves, and show labels. Wire into `Visualizer.tsx` via `React.lazy()`.
+Seed 100 etymology words into the Neon database with full metadata, spanning 4 visualization types (MAP, TREE, TIMELINE, GRID). Create validation and batch seeding scripts.
 
 ---
 
 ## 📊 Definition of Done
 
-- [x] Install D3 + TopoJSON dependencies
-- [x] Download `public/topojson/world-110m.json`
-- [x] Create `src/components/MapVisualizer.tsx`
-- [x] Wire into `Visualizer.tsx` with lazy loading
-- [x] Update demo page
-- [x] Write component tests (8 tests, all passing)
-- [x] `npx tsc --noEmit` passes
-- [x] `npm test` passes (63/63)
-- [x] `npm run lint` passes
+- [x] Create Claude generation prompt (`scripts/content/claude-prompt.md`)
+- [x] Create validation script (`scripts/validate-seed.ts`)
+- [x] Create batch seeding script (`scripts/seed-batch.ts`)
+- [x] Generate 100 words across 4 visualization types (25 each)
+- [x] Generate `seed-words.json` via `scripts/content/generate-seed.ts`
+- [x] Validate with `scripts/validate-seed.ts` — 0 failures
+- [x] Seed to Neon database — 100 words (IDs 6–107)
+- [x] Publish dates: 2026-02-20 → 2026-05-30
 - [x] Update `docs/context/02_progress.md`
-- [x] Run scripts: security-check → sync-progress
 
 ---
 
 ## 🚀 Next Task
 
-**TASK-006:** Implement TreeVisualizer (Static D3 Rendering)
+**TASK-008:** Implement TreeVisualizer (Static D3 Rendering)
 
 ---
 
