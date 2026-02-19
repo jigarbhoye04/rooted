@@ -1,5 +1,7 @@
 'use client';
 
+import { lazy, Suspense } from 'react';
+
 /**
  * Visualizer — Type switcher component
  *
@@ -17,6 +19,8 @@ import type {
     TreeNode,
 } from '@/src/schemas/visualizerData';
 import { VisualizationDataSchema } from '@/src/schemas/visualizerData';
+
+const LazyMapVisualizer = lazy(() => import('@/src/components/MapVisualizer'));
 
 /* ========================================
    Types
@@ -86,17 +90,23 @@ export default function Visualizer({
             </div>
 
             {/* Type-specific content */}
-            {validData.type === 'MAP' && <MapPlaceholder data={validData as MapVisualizationData} accentColor={accentColor} />}
+            {validData.type === 'MAP' && (
+                <Suspense fallback={<MapPlaceholder data={validData as MapVisualizationData} accentColor={accentColor} />}>
+                    <LazyMapVisualizer data={validData as MapVisualizationData} accentColor={accentColor} />
+                </Suspense>
+            )}
             {validData.type === 'TREE' && <TreePlaceholder data={validData as TreeVisualizationData} accentColor={accentColor} />}
             {validData.type === 'TIMELINE' && <TimelinePlaceholder data={validData as TimelineVisualizationData} accentColor={accentColor} />}
             {validData.type === 'GRID' && <GridPlaceholder data={validData as GridVisualizationData} />}
 
-            {/* Footer */}
-            <div className="mt-6 pt-4 border-t border-border-subtle">
-                <p className="text-[10px] text-muted/50 text-center tracking-wider uppercase">
-                    Interactive visualization coming soon
-                </p>
-            </div>
+            {/* Footer — hidden for MAP (which has a real visualizer now) */}
+            {validData.type !== 'MAP' && (
+                <div className="mt-6 pt-4 border-t border-border-subtle">
+                    <p className="text-[10px] text-muted/50 text-center tracking-wider uppercase">
+                        Interactive visualization coming soon
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,7 +1,7 @@
 # 02 - Progress Tracker
 
 **Project:** Rooted  
-**Last Updated: 2026-02-14
+**Last Updated: 2026-02-19
 **Current Phase:** Phase 0 - Setup
 
 ---
@@ -11,7 +11,7 @@
 ```
 Phase 0: Setup               [██████████] 100% ✅
 Phase 1: Foundation          [████████░░]  80%
-Phase 2: Visualizers         [██░░░░░░░░]  20%
+Phase 2: Visualizers         [████░░░░░░]  35%
 Phase 3: Scrollytelling      [░░░░░░░░░░]   0%
 Phase 4: PWA                 [░░░░░░░░░░]   0%
 Phase 5: Gamification        [░░░░░░░░░░]   0%
@@ -20,7 +20,7 @@ Phase 7: Share Feature       [░░░░░░░░░░]   0%
 Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 ```
 
-**Overall:** 26.5% (Phase 0 complete, Phase 1 ~80%, Phase 2 ~20%)
+**Overall:** 30% (Phase 0 complete, Phase 1 ~80%, Phase 2 ~35%)
 
 ---
 
@@ -129,12 +129,13 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
   - [x] Write tests
 
 #### MapVisualizer
-- [ ] Create `src/components/MapVisualizer.tsx`
-  - [ ] Load TopoJSON world map
-  - [ ] Render map with D3/react-simple-maps
-  - [ ] Plot points from `visual_data.points`
-  - [ ] Static rendering (no animations)
-  - [ ] Write tests
+- [x] Create `src/components/MapVisualizer.tsx`
+  - [x] Load TopoJSON world map
+  - [x] Render map with D3 geo projections (orthographic/mercator/naturalEarth)
+  - [x] Plot points from `visual_data.points`
+  - [x] Draw bezier route curves between connected points
+  - [x] Static rendering (no animations)
+  - [x] Write tests (8 tests)
 
 #### TreeVisualizer
 - [ ] Create `src/components/TreeVisualizer.tsx`
@@ -439,5 +440,5 @@ After completing a task:
 
 ---
 
-**Last Updated: 2026-02-14
+**Last Updated: 2026-02-19
 **Next Review:** After each phase completion

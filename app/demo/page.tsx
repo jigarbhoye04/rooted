@@ -161,7 +161,7 @@ export default function DemoPage(): React.JSX.Element {
 
                 <div className="mt-20 p-8 rounded-2xl bg-surface-secondary/30 text-center">
                     <p className="text-sm text-muted">
-                        Note: These are static placeholders. Interactive D3 visualizations will be implemented in subsequent tasks.
+                        Note: MAP uses a real D3 visualizer. TREE, TIMELINE, and GRID are still static placeholders.
                     </p>
                 </div>
             </div>

@@ -83,9 +83,9 @@ describe('Visualizer', () => {
         expect(screen.getByTestId('visualizer')).toBeInTheDocument();
     });
 
-    it('renders "coming soon" footer', () => {
+    it('does not render "coming soon" footer for MAP type', () => {
         render(<Visualizer {...MAP_PROPS} />);
-        expect(screen.getByText(/interactive visualization coming soon/i)).toBeInTheDocument();
+        expect(screen.queryByText(/interactive visualization coming soon/i)).not.toBeInTheDocument();
     });
 });
 
