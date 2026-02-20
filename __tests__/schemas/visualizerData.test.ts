@@ -119,6 +119,7 @@ describe('MapVisualizationDataSchema', () => {
     });
 
     it('accepts MAP data without optional routes', () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { routes: _routes, ...withoutRoutes } = VALID_MAP_DATA;
         expect(() => MapVisualizationDataSchema.parse(withoutRoutes)).not.toThrow();
     });

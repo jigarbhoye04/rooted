@@ -7,7 +7,7 @@
  * and synced sidebar. Playback controls float over the map.
  */
 
-import { useState, useCallback, lazy, Suspense, useEffect, useRef } from 'react';
+import { useState, useCallback, lazy, Suspense, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import type { DailyWord } from '@/src/schemas/dailyWord';
@@ -76,10 +76,12 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
     };
 
     // Validate visual_data
-    const parsed = VisualizationDataSchema.safeParse(word.content_json?.visual_data);
-    const mapData = parsed.success && parsed.data.type === 'MAP'
-        ? (parsed.data as MapVisualizationData)
-        : null;
+    const mapData = useMemo(() => {
+        const parsed = VisualizationDataSchema.safeParse(word.content_json?.visual_data);
+        return parsed.success && parsed.data.type === 'MAP'
+            ? (parsed.data as MapVisualizationData)
+            : null;
+    }, [word.content_json?.visual_data]);
 
     const totalSteps = mapData?.points.length ?? 0;
 
@@ -312,18 +314,19 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
                         </Suspense>
                     </div>
 
-                    {/* Playback Controls — floating at bottom center */}
+                    {/* Playback Controls — floating at top right */}
                     <div
-                        className="absolute bottom-6 left-1/2 z-10 w-full max-w-md px-4"
-                        style={{ transform: 'translateX(-50%)' }}
+                        className="absolute top-6 right-6 z-10 flex justify-end pointer-events-none"
                     >
-                        <Suspense fallback={null}>
-                            <LazyMapPlaybackControls
-                                totalSteps={totalSteps}
-                                activeStepIndex={activeStepIndex}
-                                onStepChange={handleStepChange}
-                            />
-                        </Suspense>
+                        <div className="pointer-events-auto">
+                            <Suspense fallback={null}>
+                                <LazyMapPlaybackControls
+                                    totalSteps={totalSteps}
+                                    activeStepIndex={activeStepIndex}
+                                    onStepChange={handleStepChange}
+                                />
+                            </Suspense>
+                        </div>
                     </div>
                 </div>
 

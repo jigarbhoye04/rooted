@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, LazyMotion, domAnimation, AnimatePresence } from 'framer-motion';
 import type { MapVisualizationData } from '@/src/schemas/visualizerData';
 
 /* ========================================
@@ -43,13 +43,13 @@ interface MapSidebarProps {
 
 export default function MapSidebar({
     data,
-    word,
+    // word, // currently unused
     definition,
     // phonetic, // unused in sidebar design
     accentColor,
     activeStepIndex,
     hook,
-    // funFact, // can be used later
+    funFact,
     // nerdMode, // can be used later
     onClose,
     onJumpToStep,
@@ -143,19 +143,33 @@ export default function MapSidebar({
                     </div>
 
                     <div className="relative pl-4 border-l border-[#E9E4D9]">
-                        <AnimatePresence>
-                            {visiblePoints.map((point, index) => (
-                                <TimelineCard
-                                    key={point.order}
-                                    point={point}
-                                    isLast={index === visiblePoints.length - 1}
-                                    accentColor={accentColor}
-                                    onClick={() => onJumpToStep?.(point.order - 1)}
-                                />
-                            ))}
-                        </AnimatePresence>
+                        <LazyMotion features={domAnimation}>
+                            <AnimatePresence>
+                                {visiblePoints.map((point, index) => (
+                                    <TimelineCard
+                                        key={point.order}
+                                        point={point}
+                                        isLast={index === visiblePoints.length - 1}
+                                        accentColor={accentColor}
+                                        onClick={() => onJumpToStep?.(point.order - 1)}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                        </LazyMotion>
                     </div>
                 </div>
+
+                {/* Fun Fact */}
+                {funFact && (
+                    <div className="p-4 rounded-xl bg-[#F5F3EE] border border-[#E9E4D9] mt-6">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-bold tracking-widest text-white uppercase bg-[#2980B9] rounded-sm mb-2">
+                            💡 FUN FACT
+                        </span>
+                        <p className="text-sm font-medium leading-relaxed text-[#4A4A4A]">
+                            {funFact}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Footer: Definition Teaser */}
@@ -187,7 +201,7 @@ function TimelineCard({
     onClick?: () => void;
 }): React.JSX.Element {
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
@@ -215,7 +229,7 @@ function TimelineCard({
                 </div>
 
                 {isLast && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         transition={{ delay: 0.2, duration: 0.3 }}
@@ -223,9 +237,9 @@ function TimelineCard({
                         <p className="text-xs text-[#4A4A4A] leading-relaxed mt-2">
                             {point.context}
                         </p>
-                    </motion.div>
+                    </m.div>
                 )}
             </div>
-        </motion.div>
+        </m.div>
     );
 }

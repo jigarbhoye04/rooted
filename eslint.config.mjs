@@ -1,5 +1,4 @@
 import nextPlugin from "@next/eslint-plugin-next";
-import tsParser from "@typescript-eslint/parser";
 import tseslint from "typescript-eslint";
 
 export default [
@@ -11,9 +10,6 @@ export default [
         files: ["**/*.ts", "**/*.tsx"],
         plugins: {
             "@next/next": nextPlugin,
-        },
-        languageOptions: {
-            parser: tsParser,
         },
         rules: {
             ...nextPlugin.configs.recommended.rules,

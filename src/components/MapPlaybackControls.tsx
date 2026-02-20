@@ -19,9 +19,9 @@ interface MapPlaybackControlsProps {
     onStepChange: (index: number) => void;
 }
 
-type PlaybackSpeed = 0.5 | 1 | 2;
+type PlaybackSpeed = 0.5 | 1;
 
-const SPEEDS: PlaybackSpeed[] = [0.5, 1, 2];
+const SPEEDS: PlaybackSpeed[] = [0.5, 1];
 const BASE_INTERVAL_MS = 2000;
 
 /* ========================================
@@ -34,7 +34,7 @@ export default function MapPlaybackControls({
     onStepChange,
 }: MapPlaybackControlsProps): React.JSX.Element {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [speed, setSpeed] = useState<PlaybackSpeed>(1);
+    const [speed, setSpeed] = useState<PlaybackSpeed>(0.5);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     /* ---- Auto-advance logic ---- */
@@ -211,7 +211,7 @@ function ControlButton({
     disabled = false,
     highlight = false,
     testId,
-     
+
 }: {
     onClick: () => void;
     label: string;
