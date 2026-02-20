@@ -15,13 +15,58 @@ import { DailyWord, DailyWordSchema } from '@/src/schemas/dailyWord';
 const sql = neon(process.env.DATABASE_URL!);
 
 /**
+ * In-memory word cache with TTL
+ * Prevents redundant Neon HTTP roundtrips for the same word.
+ * Small footprint: max 10 entries, 5-minute TTL.
+ */
+interface CacheEntry {
+  data: DailyWord;
+  expiresAt: number;
+}
+
+const WORD_CACHE = new Map<string, CacheEntry>();
+const CACHE_TTL_MS = 300_000; // 5 minutes
+const MAX_CACHE_SIZE = 10;
+
+function getCacheKey(date: string): string {
+  return `date:${date}`;
+}
+
+function setCache(key: string, data: DailyWord): void {
+  // Evict oldest if at capacity
+  if (WORD_CACHE.size >= MAX_CACHE_SIZE) {
+    const oldestKey = WORD_CACHE.keys().next().value;
+    if (oldestKey) WORD_CACHE.delete(oldestKey);
+  }
+  WORD_CACHE.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+}
+
+function getCache(key: string): DailyWord | null {
+  const entry = WORD_CACHE.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    WORD_CACHE.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+/**
  * Get word by publish date
+ * 
+ * Uses in-memory cache to reduce DB roundtrips.
+ * Cache TTL: 5 minutes. Max entries: 10.
  * 
  * @param date - Date string in YYYY-MM-DD format
  * @returns DailyWord or null if not found
  * @throws ZodError if database data fails validation
  */
 export async function getWordByDate(date: string): Promise<DailyWord | null> {
+  // Check cache first
+  const cacheKey = getCacheKey(date);
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
   const result = await sql`
     SELECT 
       id,
@@ -46,7 +91,12 @@ export async function getWordByDate(date: string): Promise<DailyWord | null> {
   }
 
   // Validate database output with Zod (throws on failure)
-  return DailyWordSchema.parse(result[0]);
+  const word = DailyWordSchema.parse(result[0]);
+
+  // Cache the validated result
+  setCache(cacheKey, word);
+
+  return word;
 }
 
 /**

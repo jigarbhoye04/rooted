@@ -41,15 +41,21 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
 
     useEffect(() => {
         setMounted(true);
+        const controller = new AbortController();
 
-        // Fetch recent map history
+        // Fetch recent map history with abort support
         // Limit 30 to cover more ground if map entries are sparse
-        fetch('/api/word/history?type=MAP&limit=30')
+        fetch('/api/word/history?type=MAP&limit=30', { signal: controller.signal })
             .then(res => res.ok ? res.json() : [])
             .then(data => setHistory(data))
-            .catch(err => console.error('Failed to load history:', err));
+            .catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error('Failed to load history:', err);
+                }
+            });
 
         return () => {
+            controller.abort();
             if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
         };
     }, []);

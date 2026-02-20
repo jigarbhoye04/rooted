@@ -13,7 +13,14 @@
  */
 
 import { useRef, useEffect, useMemo, useState } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
+import type { Selection } from 'd3-selection';
+import { geoNaturalEarth1, geoPath, geoGraticule } from 'd3-geo';
+import type { GeoProjection } from 'd3-geo';
+import { zoom as d3Zoom, zoomIdentity } from 'd3-zoom';
+import type { ZoomBehavior } from 'd3-zoom';
+import { line, curveBasis } from 'd3-shape';
+import { easeCubicOut } from 'd3-ease';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import type { MapVisualizationData } from '@/src/schemas/visualizerData';
@@ -38,9 +45,9 @@ export default function MapVisualizer({
     activeStepIndex,
 }: MapVisualizerProps): React.JSX.Element {
     const svgRef = useRef<SVGSVGElement>(null);
-    const contentGroupRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
-    const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
-    const [projection] = useState(() => d3.geoNaturalEarth1());
+    const contentGroupRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
+    const zoomBehaviorRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+    const [projection] = useState(() => geoNaturalEarth1());
 
     // Fixed dimensions for internal coordinate system
     const BASE_WIDTH = 960;
@@ -56,7 +63,7 @@ export default function MapVisualizer({
     useEffect(() => {
         if (!svgRef.current) return;
 
-        const svg = d3.select(svgRef.current);
+        const svg = select(svgRef.current);
         svg.selectAll('*').remove(); // Clear mostly for HMR or fresh mount
 
         // Create a wrapper group for zoom/pan
@@ -77,10 +84,10 @@ export default function MapVisualizer({
             projection.rotate([-centerLng, -centerLat * 0.2, 0]);
         }
 
-        const pathGenerator = d3.geoPath().projection(projection);
+        const pathGenerator = geoPath().projection(projection);
 
         // 2. Graticule
-        const graticule = d3.geoGraticule().step([15, 15]);
+        const graticule = geoGraticule().step([15, 15]);
         contentGroup.append('path')
             .datum(graticule())
             .attr('class', 'graticule')
@@ -114,7 +121,7 @@ export default function MapVisualizer({
             });
 
         // 4. Zoom Behavior
-        const zoom = d3.zoom<SVGSVGElement, unknown>()
+        const zoom = d3Zoom<SVGSVGElement, unknown>()
             .scaleExtent([1, 8]) // Min zoom 1x, Max 8x
             .translateExtent([[0, 0], [BASE_WIDTH, BASE_HEIGHT]])
             .on('zoom', (event) => {
@@ -133,7 +140,7 @@ export default function MapVisualizer({
         updateOverlays(contentGroupRef.current, data, projection, activeStepIndex, accentColor);
 
         // Update Camera Position
-        const svg = d3.select(svgRef.current);
+        const svg = select(svgRef.current);
         updateCamera(svg, zoomBehaviorRef.current, projection, data, activeStepIndex, BASE_WIDTH, BASE_HEIGHT);
 
     }, [activeStepIndex, data, projection, accentColor, BASE_WIDTH, BASE_HEIGHT]);
@@ -158,7 +165,7 @@ export default function MapVisualizer({
 function updateOverlays(
     container: any, // Use any to bypass strict D3 selection typing issues
     data: MapVisualizationData,
-    projection: d3.GeoProjection,
+    projection: GeoProjection,
     activeStepIndex: number,
     accentColor: string
 ) {
@@ -217,7 +224,7 @@ function updateOverlays(
             const dist = Math.sqrt(dx * dx + dy * dy);
             const midX = (from[0] + to[0]) / 2;
             const midY = (from[1] + to[1]) / 2 - dist * 0.2;
-            const lineGen = d3.line().curve(d3.curveBasis);
+            const lineGen = line().curve(curveBasis);
             const d = lineGen([from, [midX, midY], to]);
             if (!d) return;
 
@@ -225,7 +232,7 @@ function updateOverlays(
             const routeId = `route-${route.from}-${route.to}`;
 
             // Check if exists
-            let path = routesGroup.select(`#${routeId}`) as d3.Selection<SVGPathElement, unknown, null, undefined>;
+            let path = routesGroup.select(`#${routeId}`) as Selection<SVGPathElement, unknown, null, undefined>;
             if (path.empty()) {
                 path = routesGroup.append('path')
                     .attr('id', routeId)
@@ -235,7 +242,7 @@ function updateOverlays(
                     .attr('stroke-width', 1.5)
                     .attr('stroke-dasharray', '0,0') // Start invisible or solid? 
                     .attr('stroke-linecap', 'round')
-                    .attr('stroke-opacity', 0.8) as d3.Selection<SVGPathElement, unknown, null, undefined>;
+                    .attr('stroke-opacity', 0.8) as Selection<SVGPathElement, unknown, null, undefined>;
 
                 const pathNode = path.node();
                 const len = (pathNode && typeof pathNode.getTotalLength === 'function')
@@ -245,7 +252,7 @@ function updateOverlays(
                     .attr('stroke-dashoffset', len)
                     .transition()
                     .duration(1500)
-                    .ease(d3.easeCubicOut)
+                    .ease(easeCubicOut)
                     .attr('stroke-dashoffset', 0);
             } else {
                 // Ensure visible if already drawn
@@ -279,7 +286,7 @@ function updateOverlays(
                     traveler.transition()
                         .delay(200) // Slight delay to sync with route drawing start
                         .duration(1500)
-                        .ease(d3.easeCubicOut)
+                        .ease(easeCubicOut)
                         .attrTween('transform', () => {
                             return (t: number) => {
                                 const p = pathNode.getPointAtLength(pathNode.getTotalLength() * t);
@@ -303,7 +310,7 @@ function updateOverlays(
         if (!coords) return;
 
         const pointId = `point-${point.order}`;
-        let g = pointsGroup.select(`#${pointId}`) as d3.Selection<SVGGElement, unknown, null, undefined>;
+        let g = pointsGroup.select(`#${pointId}`) as Selection<SVGGElement, unknown, null, undefined>;
         const isActive = index === activeStepIndex;
 
         if (g.empty()) {
@@ -311,7 +318,7 @@ function updateOverlays(
                 .attr('id', pointId)
                 .attr('data-testid', `map-point-${point.order}`)
                 .attr('transform', `translate(${coords[0]}, ${coords[1]})`)
-                .attr('opacity', 0) as d3.Selection<SVGGElement, unknown, null, undefined>;
+                .attr('opacity', 0) as Selection<SVGGElement, unknown, null, undefined>;
 
             g.transition().delay(isActive ? 1000 : 0).duration(500).attr('opacity', 1);
         }
@@ -410,7 +417,7 @@ function updateOverlays(
         sortedPoints.slice(0, activeStepIndex + 1).map(p => `point-${p.order}`)
     );
     pointsGroup.selectAll('g').each(function (this: SVGGElement) {
-        const el = d3.select(this);
+        const el = select(this);
         if (!validIds.has(el.attr('id'))) {
             el.transition().duration(300).attr('opacity', 0).remove();
         }
@@ -422,9 +429,9 @@ function updateOverlays(
    ======================================== */
 
 function updateCamera(
-    svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-    zoom: d3.ZoomBehavior<SVGSVGElement, unknown>,
-    projection: d3.GeoProjection,
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    zoom: ZoomBehavior<SVGSVGElement, unknown>,
+    projection: GeoProjection,
     data: MapVisualizationData,
     activeStepIndex: number,
     baseWidth: number,
@@ -496,5 +503,5 @@ function updateCamera(
     // Transition the SVG transform
     svg.transition()
         .duration(1500)
-        .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+        .call(zoom.transform, zoomIdentity.translate(tx, ty).scale(k));
 }

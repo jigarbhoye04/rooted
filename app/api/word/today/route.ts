@@ -60,8 +60,13 @@ export async function GET(request: Request): Promise<NextResponse> {
             );
         }
 
-        // Return validated word data
-        return NextResponse.json(word);
+        // Return validated word data with cache headers
+        // Cache for 5 minutes, serve stale for 10 minutes while revalidating
+        return NextResponse.json(word, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+            },
+        });
 
     } catch (error) {
         // Handle Zod validation errors (database returned invalid data)

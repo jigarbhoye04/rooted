@@ -211,7 +211,7 @@ function ControlButton({
     disabled = false,
     highlight = false,
     testId,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
 }: {
     onClick: () => void;
     label: string;

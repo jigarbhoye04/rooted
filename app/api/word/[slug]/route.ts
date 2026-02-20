@@ -51,8 +51,12 @@ export async function GET(
             );
         }
 
-        // Return validated word data
-        return NextResponse.json(word);
+        // Published words are immutable — cache aggressively
+        return NextResponse.json(word, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=172800',
+            },
+        });
 
     } catch (error) {
         // Handle Zod validation errors

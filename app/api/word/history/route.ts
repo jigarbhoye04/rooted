@@ -58,7 +58,12 @@ export async function GET(request: Request): Promise<NextResponse> {
         // Fetch data
         const history = await getRecentWordsByType(type, limit, before);
 
-        return NextResponse.json(history);
+        // History changes slowly (daily at most), cache aggressively
+        return NextResponse.json(history, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+            },
+        });
 
     } catch (error) {
         console.error('Error in /api/word/history:', error);

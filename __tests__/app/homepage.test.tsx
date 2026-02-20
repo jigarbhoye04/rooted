@@ -1,19 +1,24 @@
 /**
  * Component tests for Homepage (app/page.tsx)
  *
- * Tests the client-side homepage component which fetches from /api/word/today
- * and renders loading, success, 404, and error states.
+ * Tests the Server Component homepage which calls getWordByDate() directly
+ * and dispatches to full-page visualization components.
  *
- * Strategy: Mock global.fetch to control API responses.
- * The new architecture dispatches to full-page components (MapPage, TimelinePage, etc.)
- * so success assertions check for the dispatched page's testid.
+ * Strategy: Mock the db module to control what getWordByDate returns.
+ * Since Home is an async Server Component, we await its rendering.
  */
 
-import { describe, it, expect, vi, beforeEach, afterAll, type Mock } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import Home from '@/app/page';
 
-// Mock next/navigation hooks used by Home and child pages
+// Mock the db module
+vi.mock('@/src/lib/db', () => ({
+    getWordByDate: vi.fn(),
+    getTodayDateString: vi.fn(() => '2026-02-20'),
+}));
+
+// Mock next/navigation hooks used by child pages
 vi.mock('next/navigation', () => ({
     useSearchParams: () => new URLSearchParams(),
     useRouter: () => ({
@@ -26,10 +31,10 @@ vi.mock('next/navigation', () => ({
     }),
 }));
 
-// Store the original fetch
-const originalFetch = global.fetch;
+// Import mocked module for test control
+import { getWordByDate, getTodayDateString } from '@/src/lib/db';
 
-/** Factory for a valid DailyWord API response */
+/** Factory for a valid DailyWord */
 function createMockWord(overrides?: Record<string, unknown>): Record<string, unknown> {
     return {
         id: 1,
@@ -55,34 +60,19 @@ function createMockWord(overrides?: Record<string, unknown>): Record<string, unk
 describe('Homepage', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
-        global.fetch = vi.fn() as Mock;
+        // Reset mocks to default
+        vi.mocked(getTodayDateString).mockReturnValue('2026-02-20');
     });
 
-    afterAll(() => {
-        global.fetch = originalFetch;
-    });
-
-    it('renders a loading skeleton on initial mount', () => {
-        // Never resolve so we stay in loading state
-        (global.fetch as Mock).mockReturnValue(new Promise(() => { }));
-
-        render(<Home />);
-
-        expect(screen.getByRole('status')).toBeInTheDocument();
-        expect(screen.getByLabelText('Loading today\'s word')).toBeInTheDocument();
-    });
-
-    it('renders word data after successful fetch', async () => {
+    it('renders word data after successful DB fetch', async () => {
         const mockWord = createMockWord();
-        (global.fetch as Mock).mockResolvedValue({
-            ok: true,
-            status: 200,
-            json: () => Promise.resolve(mockWord),
-        });
+        vi.mocked(getWordByDate).mockResolvedValue(mockWord as never);
 
-        render(<Home />);
+        // Home is async — get the JSX and render it
+        const jsx = await Home({ searchParams: Promise.resolve({}) });
+        render(jsx);
 
-        // The dispatcher routes TIMELINE type to TimelinePage
+        // The dispatcher routes TIMELINE type to TimelinePage (lazy loaded)
         await waitFor(() => {
             expect(screen.getByTestId('timeline-page')).toBeInTheDocument();
         });
@@ -92,67 +82,96 @@ describe('Homepage', () => {
         expect(screen.getByText('Deliberately destroy or damage something.')).toBeInTheDocument();
     });
 
-    it('renders 404 empty state when API returns not found', async () => {
-        (global.fetch as Mock).mockResolvedValue({
-            ok: false,
-            status: 404,
-            json: () => Promise.resolve({ error: 'No word scheduled for today' }),
-        });
+    it('renders empty state when no word found for today', async () => {
+        vi.mocked(getWordByDate).mockResolvedValue(null);
 
-        render(<Home />);
+        const jsx = await Home({ searchParams: Promise.resolve({}) });
+        render(jsx);
 
-        await waitFor(() => {
-            expect(screen.getByText('No Word Today')).toBeInTheDocument();
-        });
-
+        expect(screen.getByText('No Word Today')).toBeInTheDocument();
         expect(screen.getByText(/planting the seeds/i)).toBeInTheDocument();
     });
 
-    it('renders error state with retry button when API returns 500', async () => {
-        (global.fetch as Mock).mockResolvedValue({
-            ok: false,
-            status: 500,
-            json: () => Promise.resolve({ error: 'Internal server error' }),
-        });
+    it('renders error state for future date', async () => {
+        vi.mocked(getTodayDateString).mockReturnValue('2026-02-20');
 
-        render(<Home />);
+        const jsx = await Home({ searchParams: Promise.resolve({ date: '2026-12-31' }) });
+        render(jsx);
 
-        await waitFor(() => {
-            expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
-        });
-
-        expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+        expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
+        expect(screen.getByText('Cannot view future words.')).toBeInTheDocument();
     });
 
-    it('retry button triggers a new fetch', async () => {
-        // First call: 500 error
-        (global.fetch as Mock).mockResolvedValueOnce({
-            ok: false,
-            status: 500,
-            json: () => Promise.resolve({ error: 'Internal server error' }),
-        });
+    it('uses date param when provided', async () => {
+        const mockWord = createMockWord({ publish_date: '2026-02-10' });
+        vi.mocked(getWordByDate).mockResolvedValue(mockWord as never);
 
-        render(<Home />);
+        const jsx = await Home({ searchParams: Promise.resolve({ date: '2026-02-10' }) });
+        render(jsx);
+
+        expect(getWordByDate).toHaveBeenCalledWith('2026-02-10');
+    });
+
+    it('dispatches MAP type to MapPage', async () => {
+        const mockWord = createMockWord({
+            visualization_type: 'MAP',
+            content_json: {
+                hook: 'Test hook',
+                fun_fact: 'Test fact',
+                visual_data: {
+                    type: 'MAP',
+                    projection: 'orthographic',
+                    points: [
+                        {
+                            order: 1,
+                            location_name: 'Ethiopia',
+                            coordinates: [9.145, 40.489],
+                            era: '800 CE',
+                            context: 'Origin story',
+                        },
+                        {
+                            order: 2,
+                            location_name: 'Arabia',
+                            coordinates: [23.885, 45.079],
+                            era: '900 CE',
+                            context: 'Spread through trade',
+                        },
+                    ],
+                    routes: [],
+                },
+            },
+        });
+        vi.mocked(getWordByDate).mockResolvedValue(mockWord as never);
+
+        const jsx = await Home({ searchParams: Promise.resolve({}) });
+        render(jsx);
 
         await waitFor(() => {
-            expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
+            expect(screen.getByTestId('map-page')).toBeInTheDocument();
         });
+    });
 
-        // Second call: success
-        const mockWord = createMockWord();
-        (global.fetch as Mock).mockResolvedValueOnce({
-            ok: true,
-            status: 200,
-            json: () => Promise.resolve(mockWord),
-        });
+    it('dispatches GRID type to GridPage', async () => {
+        const mockWord = createMockWord({ visualization_type: 'GRID' });
+        vi.mocked(getWordByDate).mockResolvedValue(mockWord as never);
 
-        fireEvent.click(screen.getByRole('button', { name: /try again/i }));
+        const jsx = await Home({ searchParams: Promise.resolve({}) });
+        render(jsx);
 
         await waitFor(() => {
-            expect(screen.getByText('Sabotage')).toBeInTheDocument();
+            expect(screen.getByTestId('grid-page')).toBeInTheDocument();
         });
+    });
 
-        expect(global.fetch).toHaveBeenCalledTimes(2);
+    it('dispatches TREE type to TreePage', async () => {
+        const mockWord = createMockWord({ visualization_type: 'TREE' });
+        vi.mocked(getWordByDate).mockResolvedValue(mockWord as never);
+
+        const jsx = await Home({ searchParams: Promise.resolve({}) });
+        render(jsx);
+
+        await waitFor(() => {
+            expect(screen.getByTestId('tree-page')).toBeInTheDocument();
+        });
     });
 });

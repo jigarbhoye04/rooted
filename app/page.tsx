@@ -1,104 +1,59 @@
-'use client';
-
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import type { DailyWord } from '@/src/schemas/dailyWord';
-
 /**
- * Homepage — fetches today's word and dispatches to the correct full-page experience
+ * Homepage — Server Component that fetches today's word
+ * and dispatches to the correct full-page visualization.
+ *
+ * SSR: Data is fetched server-side, eliminating the client-side
+ * /api/word/today fetch and the loading skeleton flash.
  *
  * Each visualization type gets its own dedicated page component:
  * MAP → MapPage | TREE → TreePage | TIMELINE → TimelinePage | GRID → GridPage
  */
 
+import { Suspense, lazy } from 'react';
+import { getWordByDate, getTodayDateString } from '@/src/lib/db';
+import type { DailyWord } from '@/src/schemas/dailyWord';
+
+// Lazy-loaded client components for each visualization type
 const LazyMapPage = lazy(() => import('@/src/views/MapPage'));
 const LazyTreePage = lazy(() => import('@/src/views/TreePage'));
 const LazyTimelinePage = lazy(() => import('@/src/views/TimelinePage'));
 const LazyGridPage = lazy(() => import('@/src/views/GridPage'));
 
-type PageState =
-    | { status: 'loading' }
-    | { status: 'success'; word: DailyWord }
-    | { status: 'not-found' }
-    | { status: 'error'; message: string };
-
-export default function Home(): React.JSX.Element {
-    return (
-        <Suspense fallback={<LoadingSkeleton />}>
-            <HomeContent />
-        </Suspense>
-    );
+interface HomePageProps {
+    searchParams: Promise<{ date?: string }>;
 }
 
-function HomeContent(): React.JSX.Element {
-    const [state, setState] = useState<PageState>({ status: 'loading' });
+export default async function Home({ searchParams }: HomePageProps): Promise<React.JSX.Element> {
+    const params = await searchParams;
+    const dateParam = params.date;
 
-    const searchParams = useSearchParams();
-    const dateParam = searchParams.get('date');
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    const today = getTodayDateString();
 
-    const fetchWord = useCallback(async (): Promise<void> => {
-        setState({ status: 'loading' });
+    let targetDate: string;
 
-        try {
-            // Build URL with optional date param
-            let url = '/api/word/today';
-            if (dateParam) {
-                url += `?date=${dateParam}`;
-            }
-
-            const response = await fetch(url);
-
-            if (response.status === 404) {
-                setState({ status: 'not-found' });
-                return;
-            }
-
-            if (response.status === 400) { // Future date error
-                setState({
-                    status: 'error',
-                    message: 'Cannot view future words.',
-                });
-                return;
-            }
-
-            if (!response.ok) {
-                setState({
-                    status: 'error',
-                    message: 'Something went wrong. Please try again.',
-                });
-                return;
-            }
-
-            const word: DailyWord = await response.json();
-            setState({ status: 'success', word });
-        } catch {
-            setState({
-                status: 'error',
-                message: 'Unable to connect. Check your internet and try again.',
-            });
+    if (dateParam && dateRegex.test(dateParam)) {
+        // Prevent future dates
+        if (dateParam > today) {
+            return <ErrorState message="Cannot view future words." />;
         }
-    }, [dateParam]);
-
-    useEffect(() => {
-        void fetchWord();
-    }, [fetchWord]);
-
-    if (state.status === 'loading') {
-        return <LoadingSkeleton />;
+        targetDate = dateParam;
+    } else {
+        targetDate = today;
     }
 
-    if (state.status === 'not-found') {
+    // Fetch word server-side — no client fetch needed
+    const word = await getWordByDate(targetDate);
+
+    if (!word) {
         return <EmptyState />;
     }
 
-    if (state.status === 'error') {
-        return <ErrorState message={state.message} onRetry={fetchWord} />;
-    }
-
-    // Dispatch to the correct full-page experience based on visualization type
+    // Dispatch to the correct full-page experience
     return (
         <Suspense fallback={<LoadingSkeleton />}>
-            <WordPageDispatcher word={state.word} />
+            <WordPageDispatcher word={word} />
         </Suspense>
     );
 }
@@ -201,16 +156,10 @@ function EmptyState(): React.JSX.Element {
 }
 
 /* ========================================
-   Error State (500 / network)
+   Error State (server-rendered)
    ======================================== */
 
-function ErrorState({
-    message,
-    onRetry,
-}: {
-    message: string;
-    onRetry: () => void;
-}): React.JSX.Element {
+function ErrorState({ message }: { message: string }): React.JSX.Element {
     return (
         <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
             <div className="text-center max-w-md animate-fade-in">
@@ -223,13 +172,6 @@ function ErrorState({
                 <p className="text-base text-muted leading-relaxed mb-8">
                     {message}
                 </p>
-                <button
-                    onClick={onRetry}
-                    type="button"
-                    className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-accent-warm rounded-full hover:opacity-90 active:scale-[0.97] transition-all duration-200 shadow-md shadow-accent-warm/20"
-                >
-                    Try Again
-                </button>
             </div>
         </section>
     );
