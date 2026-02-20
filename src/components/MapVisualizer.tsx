@@ -237,7 +237,10 @@ function updateOverlays(
                     .attr('stroke-linecap', 'round')
                     .attr('stroke-opacity', 0.8) as d3.Selection<SVGPathElement, unknown, null, undefined>;
 
-                const len = path.node()?.getTotalLength() || 0;
+                const pathNode = path.node();
+                const len = (pathNode && typeof pathNode.getTotalLength === 'function')
+                    ? pathNode.getTotalLength()
+                    : 0;
                 path.attr('stroke-dasharray', len)
                     .attr('stroke-dashoffset', len)
                     .transition()
@@ -272,7 +275,7 @@ function updateOverlays(
                     .attr('stroke-width', 1.5);
 
                 const pathNode = path.node();
-                if (pathNode) {
+                if (pathNode && typeof pathNode.getTotalLength === 'function' && typeof pathNode.getPointAtLength === 'function') {
                     traveler.transition()
                         .delay(200) // Slight delay to sync with route drawing start
                         .duration(1500)
@@ -306,6 +309,7 @@ function updateOverlays(
         if (g.empty()) {
             g = pointsGroup.append('g')
                 .attr('id', pointId)
+                .attr('data-testid', `map-point-${point.order}`)
                 .attr('transform', `translate(${coords[0]}, ${coords[1]})`)
                 .attr('opacity', 0) as d3.Selection<SVGGElement, unknown, null, undefined>;
 
@@ -328,6 +332,7 @@ function updateOverlays(
                 .attr('height', cardH);
 
             const div = fo.append('xhtml:div')
+                .attr('data-testid', `map-label-${point.order}`)
                 .style('width', '100%')
                 .style('height', '100%')
                 .style('background-color', 'white')

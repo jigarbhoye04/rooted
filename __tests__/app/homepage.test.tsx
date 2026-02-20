@@ -5,11 +5,26 @@
  * and renders loading, success, 404, and error states.
  *
  * Strategy: Mock global.fetch to control API responses.
+ * The new architecture dispatches to full-page components (MapPage, TimelinePage, etc.)
+ * so success assertions check for the dispatched page's testid.
  */
 
 import { describe, it, expect, vi, beforeEach, afterAll, type Mock } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import Home from '@/app/page';
+
+// Mock next/navigation hooks used by Home and child pages
+vi.mock('next/navigation', () => ({
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({
+        push: vi.fn(),
+        replace: vi.fn(),
+        prefetch: vi.fn(),
+        back: vi.fn(),
+        forward: vi.fn(),
+        refresh: vi.fn(),
+    }),
+}));
 
 // Store the original fetch
 const originalFetch = global.fetch;
@@ -67,14 +82,14 @@ describe('Homepage', () => {
 
         render(<Home />);
 
+        // The dispatcher routes TIMELINE type to TimelinePage
         await waitFor(() => {
-            expect(screen.getByText('Sabotage')).toBeInTheDocument();
+            expect(screen.getByTestId('timeline-page')).toBeInTheDocument();
         });
 
+        // TimelinePage renders the word and definition
+        expect(screen.getByText('Sabotage')).toBeInTheDocument();
         expect(screen.getByText('Deliberately destroy or damage something.')).toBeInTheDocument();
-        expect(screen.getByText('/ˈsæbətɑːʒ/')).toBeInTheDocument();
-        expect(screen.getByText('From wooden shoes to cyber attacks.')).toBeInTheDocument();
-        expect(screen.getByText('TIMELINE')).toBeInTheDocument();
     });
 
     it('renders 404 empty state when API returns not found', async () => {

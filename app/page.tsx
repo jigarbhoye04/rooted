@@ -11,10 +11,10 @@ import type { DailyWord } from '@/src/schemas/dailyWord';
  * MAP → MapPage | TREE → TreePage | TIMELINE → TimelinePage | GRID → GridPage
  */
 
-const LazyMapPage = lazy(() => import('@/src/pages/MapPage'));
-const LazyTreePage = lazy(() => import('@/src/pages/TreePage'));
-const LazyTimelinePage = lazy(() => import('@/src/pages/TimelinePage'));
-const LazyGridPage = lazy(() => import('@/src/pages/GridPage'));
+const LazyMapPage = lazy(() => import('@/src/views/MapPage'));
+const LazyTreePage = lazy(() => import('@/src/views/TreePage'));
+const LazyTimelinePage = lazy(() => import('@/src/views/TimelinePage'));
+const LazyGridPage = lazy(() => import('@/src/views/GridPage'));
 
 type PageState =
     | { status: 'loading' }
@@ -23,6 +23,14 @@ type PageState =
     | { status: 'error'; message: string };
 
 export default function Home(): React.JSX.Element {
+    return (
+        <Suspense fallback={<LoadingSkeleton />}>
+            <HomeContent />
+        </Suspense>
+    );
+}
+
+function HomeContent(): React.JSX.Element {
     const [state, setState] = useState<PageState>({ status: 'loading' });
 
     const searchParams = useSearchParams();
@@ -138,7 +146,7 @@ function FallbackPage({ word }: { word: DailyWord }): React.JSX.Element {
 
 function LoadingSkeleton(): React.JSX.Element {
     return (
-        <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
+        <section className="flex flex-col items-center justify-center min-h-screen px-6 py-16" role="status" aria-label="Loading today's word">
             <div className="w-full max-w-2xl">
                 {/* Title skeleton */}
                 <div className="flex justify-center mb-10">

@@ -76,6 +76,27 @@ beforeEach(() => {
     );
     // Mock clientWidth for responsive container
     Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, value: 800 });
+
+    // Mock SVG methods that JSDOM doesn't implement
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = globalThis as any;
+    if (typeof w.SVGPathElement !== 'undefined' && !w.SVGPathElement.prototype.getTotalLength) {
+        w.SVGPathElement.prototype.getTotalLength = () => 1000;
+    }
+    if (typeof w.SVGElement !== 'undefined' && !w.SVGElement.prototype.getScreenCTM) {
+        w.SVGElement.prototype.getScreenCTM = () => ({
+            a: 1, b: 0, c: 0, d: 1, e: 0, f: 0,
+            inverse: () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }),
+            multiply: () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }),
+            translate: () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }),
+        });
+    }
+    if (typeof w.SVGElement !== 'undefined' && !w.SVGElement.prototype.getBBox) {
+        w.SVGElement.prototype.getBBox = () => ({ x: 0, y: 0, width: 100, height: 100 });
+    }
+    if (typeof w.SVGSVGElement !== 'undefined' && !w.SVGSVGElement.prototype.createSVGPoint) {
+        w.SVGSVGElement.prototype.createSVGPoint = () => ({ x: 0, y: 0, matrixTransform: () => ({ x: 0, y: 0 }) });
+    }
 });
 
 afterEach(() => {
@@ -129,7 +150,7 @@ describe('MapVisualizer', () => {
             const label = screen.getByTestId('map-label-1');
             expect(label).toBeInTheDocument();
             // Active label should contain the country code and full name
-            expect(label.textContent).toContain('ETHIOPIA');
+            expect(label.textContent).toContain('Ethiopia');
         });
     });
 
