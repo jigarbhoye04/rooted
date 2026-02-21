@@ -47,8 +47,9 @@ Before writing code or answering complex questions, you **MUST** read these file
 4.  **DRY (Don't Repeat Yourself)**: Extract repeated logic into functions.
 
 ### Testing
-1.  **Coverage**: Every API route and component must have tests.
-2.  **Test Data**: Tests must use isolated test data, never production data.
+1.  **Scope**: Only test API routes, database functions, and Zod schemas.
+2.  **No UI Tests**: DO NOT WRITE tests for UI components (React/Next.js) or Visualizers (D3, Framer Motion) as JSDOM does not effectively render complex graphics and wastes time/effort.
+3.  **Test Data**: Tests must use isolated test data, never production data.
 
 ### Architecture
 1.  **File Naming**: 

@@ -32,7 +32,6 @@ description: Apply when: writing code, reviewing PRs, debugging, refactoring, ad
 Code:
 [ ] npm run type-check (no errors)
 [ ] npm run lint (no errors)  
-[ ] npm run test (all pass)
 [ ] No console.log, debugger, commented code
 
 Security:

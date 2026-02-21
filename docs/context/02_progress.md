@@ -147,14 +147,12 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
   - [x] Draw animated bezier route curves
   - [x] Full-page interactive experience (MapPage)
   - [x] Sidebar with synced content & animations
-  - [ ] Write integration tests (needs update)
 
 #### TreeVisualizer
 - [x] Create `src/components/TreeVisualizer.tsx`
   - [x] Use D3 tree layout (dendrogram or radial)
   - [x] Render nodes from `visual_data.root` and `children`
   - [x] Interactive animated rendering
-  - [ ] Write tests
 
 #### TimelineVisualizer
 - [x] Create `src/components/TimelineVisualizer.tsx`
@@ -169,7 +167,6 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
   - [ ] 3x3 grid with Flexbox
   - [ ] Render languages from `visual_data.languages`
   - [ ] Show script in correct font
-  - [ ] Write tests
 
 ### Demo Page
 - [x] Create `app/demo/page.tsx`
