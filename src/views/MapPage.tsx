@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import type { DailyWord } from '@/src/schemas/dailyWord';
 import { VisualizationDataSchema } from '@/src/schemas/visualizerData';
 import type { MapVisualizationData } from '@/src/schemas/visualizerData';
+import { getCachedHistory, setCachedHistory, type HistoryItem } from '@/src/lib/historyCache';
 
 const LazyMapVisualizer = lazy(() => import('@/src/components/MapVisualizer'));
 const LazyMapPlaybackControls = lazy(() => import('@/src/components/MapPlaybackControls'));
@@ -43,11 +44,21 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
         setMounted(true);
         const controller = new AbortController();
 
+        // Try cache first
+        const cached = getCachedHistory('MAP');
+        if (cached) {
+            setHistory(cached);
+            return;
+        }
+
         // Fetch recent map history with abort support
         // Limit 30 to cover more ground if map entries are sparse
         fetch('/api/word/history?type=MAP&limit=30', { signal: controller.signal })
             .then(res => res.ok ? res.json() : [])
-            .then(data => setHistory(data))
+            .then(data => {
+                setCachedHistory('MAP', data);
+                setHistory(data);
+            })
             .catch(err => {
                 if (err.name !== 'AbortError') {
                     console.error('Failed to load history:', err);

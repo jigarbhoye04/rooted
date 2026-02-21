@@ -13,6 +13,7 @@ import type { DailyWord } from '@/src/schemas/dailyWord';
 import { VisualizationDataSchema } from '@/src/schemas/visualizerData';
 import type { TreeVisualizationData } from '@/src/schemas/visualizerData';
 import { useTreeTimeline } from '@/src/hooks/useTreeTimeline';
+import { getCachedHistory, setCachedHistory, type HistoryItem } from '@/src/lib/historyCache';
 
 const LazyTreeVisualizer = lazy(() => import('@/src/components/TreeVisualizer'));
 const LazyTreePlaybackControls = lazy(() => import('@/src/components/TreePlaybackControls'));
@@ -43,10 +44,20 @@ export default function TreePage({ word }: TreePageProps): React.JSX.Element {
         setMounted(true);
         const controller = new AbortController();
 
+        // Try cache first
+        const cached = getCachedHistory('TREE');
+        if (cached) {
+            setHistory(cached);
+            return;
+        }
+
         // Fetch recent tree history with abort support
         fetch('/api/word/history?type=TREE&limit=30', { signal: controller.signal })
             .then(res => res.ok ? res.json() : [])
-            .then(data => setHistory(data))
+            .then(data => {
+                setCachedHistory('TREE', data);
+                setHistory(data);
+            })
             .catch(err => {
                 if (err.name !== 'AbortError') {
                     console.error('Failed to load history:', err);
