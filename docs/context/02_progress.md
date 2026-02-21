@@ -1,7 +1,7 @@
 # 02 - Progress Tracker
 
 **Project:** Rooted  
-**Last Updated: 2026-02-19
+**Last Updated: 2026-02-21
 **Current Phase:** Phase 0 - Setup
 
 ---
@@ -150,18 +150,19 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
   - [ ] Write integration tests (needs update)
 
 #### TreeVisualizer
-- [ ] Create `src/components/TreeVisualizer.tsx`
-  - [ ] Use D3 tree layout (dendrogram or radial)
-  - [ ] Render nodes from `visual_data.root` and `children`
-  - [ ] Static rendering
+- [x] Create `src/components/TreeVisualizer.tsx`
+  - [x] Use D3 tree layout (dendrogram or radial)
+  - [x] Render nodes from `visual_data.root` and `children`
+  - [x] Interactive animated rendering
   - [ ] Write tests
 
 #### TimelineVisualizer
-- [ ] Create `src/components/TimelineVisualizer.tsx`
-  - [ ] Horizontal timeline with CSS Grid
-  - [ ] Render epochs from `visual_data.epochs`
-  - [ ] Static cards (no scroll trigger yet)
-  - [ ] Write tests
+- [x] Create `src/components/TimelineVisualizer.tsx`
+  - [x] Alternate layout rendering (Museum vs Newspaper style toggle)
+  - [x] Extracted `NewspaperRail`, `NewspaperCard`, `TimelineRail`, `TimelineCard`
+  - [x] Implemented multi-accent 5-color palette system (DB backfill script)
+  - [x] Dynamic text layouts based on content density (e.g. usage examples)
+  - [x] Added Right Sidebar Curator Notes and Central Word Hero component
 
 #### GridVisualizer
 - [ ] Create `src/components/GridVisualizer.tsx`
@@ -456,5 +457,5 @@ After completing a task:
 
 ---
 
-**Last Updated: 2026-02-19
+**Last Updated: 2026-02-21
 **Next Review:** After each phase completion

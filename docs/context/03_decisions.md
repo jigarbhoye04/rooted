@@ -391,5 +391,31 @@ Switch from `@vercel/postgres` to `@neondatabase/serverless`.
 
 ---
 
-**Last Updated:** 2025-02-07  
+## ADR-010: Store Multi-color Palettes in JSONB instead of Schema Migration
+
+**Date:** 2026-02-21  
+**Status:** Accepted  
+**Decider:** Jigar + Agent
+
+### Context
+We wanted to upgrade from a single `accent_color` to a rich 5-color palette (primary, secondary, muted, surface, text) for the TimelineVisualizer to allow complex styling, particularly for Newspaper mode vs Museum mode. We needed to decide where this newly structured data should live.
+
+### Decision
+Store the extended `palette` object inside the existing `content_json` JSONB column rather than creating 5 new schema columns or physically altering the database table structure. We back-filled existing DB rows using a script that algorithmically derives the 5 colors from the single `accent_color`.
+
+### Consequences
+**Positive:**
+- Zero database migrations required
+- Retains compatibility with existing `accent_color` field (used as a fallback)
+- Flexible allowing easy additions like "dark_mode_palette" later
+
+**Negative:**
+- Palettes are not easily queryable via standard SQL columns
+
+### Alternatives Considered
+- **Add columns to daily_words:** Rejected because it clutters the schema with purely aesthetic visual data.
+
+---
+
+**Last Updated:** 2026-02-21  
 **Next Review:** After each major decision

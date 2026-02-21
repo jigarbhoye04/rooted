@@ -8,67 +8,31 @@
  */
 
 import type { DailyWord } from '@/src/schemas/dailyWord';
+import { TimelineVisualizationDataSchema } from '@/src/schemas/visualizerData';
+import TimelineVisualizer from '@/src/components/visualizers/timeline/TimelineVisualizer';
 
 interface TimelinePageProps {
     word: DailyWord;
 }
 
 export default function TimelinePage({ word }: TimelinePageProps): React.JSX.Element {
-    return (
-        <div className="flex flex-col h-screen overflow-hidden" data-testid="timeline-page">
-            {/* Header */}
-            <header
-                className="flex items-center justify-between px-5 py-3 shrink-0"
-                style={{
-                    borderBottom: '1px solid #E9E4D9',
-                    backgroundColor: '#FDFCF9',
-                }}
-            >
-                <div className="flex items-center gap-4">
-                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight" style={{ color: '#1A1A1A' }}>
-                        {word.word}
-                    </h1>
-                    {word.phonetic && (
-                        <span className="text-sm italic" style={{ color: '#8C8577' }}>{word.phonetic}</span>
-                    )}
-                </div>
-                <span
-                    className="px-2.5 py-1 text-[9px] font-bold tracking-widest uppercase"
-                    style={{
-                        border: '1px solid #1A1A1A',
-                        borderRadius: 2,
-                        color: '#1A1A1A',
-                        fontFamily: "'Courier New', Courier, monospace",
-                    }}
-                >
-                    TIMELINE
-                </span>
-            </header>
 
-            {/* Placeholder content */}
-            <div className="flex-1 flex flex-col items-center justify-center px-6">
-                <span className="text-6xl mb-6" role="img" aria-label="hourglass">⏳</span>
-                <h2 className="text-xl font-bold text-text-primary mb-2">Word Timeline</h2>
-                <p className="text-base text-muted leading-relaxed max-w-md text-center mb-6">
-                    {word.definition}
-                </p>
-                {word.content_json?.hook && (
-                    <p className="text-sm text-text-secondary italic max-w-lg text-center">
-                        &quot;{word.content_json.hook}&quot;
-                    </p>
-                )}
-                <div className="mt-10 px-4 py-2 rounded-full border border-border">
-                    <p
-                        className="text-[10px] uppercase tracking-widest font-bold"
-                        style={{
-                            color: '#8C8577',
-                            fontFamily: "'Courier New', Courier, monospace",
-                        }}
-                    >
-                        INTERACTIVE_TIMELINE // COMING_SOON
-                    </p>
-                </div>
+    // Parse visual data securely
+    const parsed = TimelineVisualizationDataSchema.safeParse(word.content_json.visual_data);
+
+    if (!parsed.success) {
+        return (
+            <div className="flex flex-col h-screen overflow-hidden items-center justify-center p-8 text-center bg-[#FDFCF9]">
+                <span className="text-4xl mb-4" role="img" aria-label="warning">⚠️</span>
+                <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">Invalid Timeline Data</h2>
+                <p className="text-sm text-[#8C8577]">The data format for "{word.word}" is missing or incompatible.</p>
             </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col h-screen overflow-hidden w-full bg-[#FDFCF9]" data-testid="timeline-page">
+            <TimelineVisualizer word={word} data={parsed.data} />
         </div>
     );
 }

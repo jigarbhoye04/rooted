@@ -50,11 +50,23 @@ export const DailyWordSchema = z.object({
     // "Did you know?" section content
     fun_fact: z.string().min(1, 'Fun fact cannot be empty'),
 
+    // Part of speech (e.g., noun, verb, adjective) - optional
+    part_of_speech: z.string().optional(),
+
     // Optional deep dive content (unlocked with Nerd Mode)
     nerd_mode: z.object({
       ipa_full: z.string().optional(),
       disputed_origin: z.string().optional(),
       earliest_citation: z.string().optional(),
+    }).optional(),
+
+    // Multi-color palette for rich theming (auto-generated or curated)
+    palette: z.object({
+      primary: z.string().regex(/^#[0-9A-Fa-f]{6}$/),    // Main accent (buttons, active states)
+      secondary: z.string().regex(/^#[0-9A-Fa-f]{6}$/),   // Complementary accent (borders, pills)
+      muted: z.string().regex(/^#[0-9A-Fa-f]{6}$/),       // Inactive/subtle elements
+      surface: z.string().regex(/^#[0-9A-Fa-f]{6}$/),     // Light tinted background
+      text: z.string().regex(/^#[0-9A-Fa-f]{6}$/),        // Text on accent surfaces
     }).optional(),
 
     // Type-specific visualization data

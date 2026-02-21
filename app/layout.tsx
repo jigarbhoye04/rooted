@@ -51,6 +51,9 @@ export default function RootLayout({
 }): React.JSX.Element {
     return (
         <html lang="en" className={satoshi.variable}>
+            <head>
+                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+            </head>
             <body className="font-sans antialiased bg-background text-foreground min-h-screen flex flex-col">
                 <header className="w-full px-6 py-4 flex items-center justify-between border-b border-neutral-200/60 transition-all duration-300">
                     <div className="flex items-center shrink-0 w-[200px]">

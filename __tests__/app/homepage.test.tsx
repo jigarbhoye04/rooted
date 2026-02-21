@@ -47,7 +47,18 @@ function createMockWord(overrides?: Record<string, unknown>): Record<string, unk
         content_json: {
             hook: 'From wooden shoes to cyber attacks.',
             fun_fact: 'Workers threw sabots (shoes) into machinery.',
-            visual_data: {},
+            visual_data: {
+                type: 'TIMELINE',
+                epochs: [
+                    {
+                        order: 1,
+                        era: '1800s',
+                        term: 'Sabot',
+                        meaning: 'Wooden shoe.',
+                        sentiment: 'neutral',
+                    }
+                ]
+            },
         },
         accent_color: '#FF5733',
         created_at: '2026-02-14T00:00:00.000Z',
