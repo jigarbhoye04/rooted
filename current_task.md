@@ -1,7 +1,7 @@
 # Current Task
 
-**Task ID:** TASK-010  
-**Phase:** Visualization — Timeline Architecture  
+**Task ID:** TASK-011  
+**Phase:** Visualization — Grid Architecture  
 **Created:** 2026-02-21  
 **Status:** ✅ Complete
 
@@ -9,25 +9,28 @@
 
 ## 🎯 Objective
 
-Implement the TimelineVisualizer component with advanced multi-style support (Chronology vs Newspaper), dynamic narrative-driven layouts, and a multi-accent 5-color palette system.
+Implement the GridVisualizer component for the GRID visualization type, displaying linguistic cognates, loanwords, and parallels across languages in a responsive, animated CSS Grid layout with multi-script typography support.
 
 ---
 
 ## 📊 Definition of Done
 
-- [x] Implement multi-color palette support locally and via DB backfill
-- [x] Integrate 5-color palettes into Timeline layout
-- [x] Implement `useTimelineStyle.ts` for managing layout toggles
-- [x] Build `NewspaperCard` and `NewspaperRail` for alternate visual styling
-- [x] Refactor `TimelineVisualizer.tsx` to include Museum and Newspaper layouts
-- [x] Fix TypeScript interfaces (add `part_of_speech` and `palette` to `content_json` schema)
-- [x] Build and test verification
+- [x] Create `src/components/visualizers/grid/GridVisualizer.tsx` with full layout
+- [x] Typography Engine mapping `script_type` to correct CSS font-family fallbacks
+- [x] Responsive CSS Grid (2→3→4 columns based on language count)
+- [x] Framer-motion stagger entrance animations + hover states
+- [x] Multi-accent 5-color palette integration via `resolvePalette()`
+- [x] Right sidebar with hook, fun_fact, earliest_citation, language index
+- [x] Update `src/views/GridPage.tsx` with Zod schema validation + real visualizer
+- [x] Update `src/components/Visualizer.tsx` to lazy-load GridVisualizer
+- [x] Update `docs/context/02_progress.md` to mark Grid complete
+- [x] Build verification passes with no TypeScript errors
 
 ---
 
 ## 🚀 Next Task
 
-**TASK-011:** Implement GridVisualizer (3x3 Flexbox grid for language variants)
+**TASK-012:** Phase 3 — Scrollytelling (scroll-triggered animations on word pages)
 
 ---
 
