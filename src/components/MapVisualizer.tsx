@@ -12,7 +12,7 @@
  * - Auto-Focus Camera: Zooms to fit active route + destination (adjusted zoom level)
  */
 
-import { useRef, useEffect, useMemo, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { select } from 'd3-selection';
 import type { Selection } from 'd3-selection';
 import { geoNaturalEarth1, geoPath, geoGraticule } from 'd3-geo';
@@ -54,10 +54,10 @@ export default function MapVisualizer({
     const BASE_HEIGHT = 500;
 
     // Colors
-    const bgColor = useMemo(() => {
+    /* const bgColor = useMemo(() => {
         // Desaturated paper background
         return '#EBE9E4'; // Slightly warmer/darker than pure white for archival feel
-    }, []);
+    }, []); */
 
     /* ---- Effect 1: Initialize Map & Zoom (Runs once) ---- */
     useEffect(() => {
@@ -163,6 +163,7 @@ export default function MapVisualizer({
    ======================================== */
 
 function updateOverlays(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     container: any, // Use any to bypass strict D3 selection typing issues
     data: MapVisualizationData,
     projection: GeoProjection,
@@ -202,7 +203,7 @@ function updateOverlays(
 
     /* ---- 1. Routes & Moving Traveler ---- */
     // Find the active route (leading to current step)
-    const activeRouteIndex = data.routes?.findIndex(r => r.to === activeStepIndex + 1);
+    // const activeRouteIndex = data.routes?.findIndex(r => r.to === activeStepIndex + 1);
     // const activeRoute = activeRouteIndex !== undefined && activeRouteIndex !== -1 ? data.routes![activeRouteIndex] : null;
 
     // Render all visible routes
@@ -251,7 +252,7 @@ function updateOverlays(
                 path.attr('stroke-dasharray', len)
                     .attr('stroke-dashoffset', len)
                     .transition()
-                    .duration(1500)
+                    .duration(1800) // Much more fluid and faster
                     .ease(easeCubicOut)
                     .attr('stroke-dashoffset', 0);
             } else {
@@ -284,8 +285,8 @@ function updateOverlays(
                 const pathNode = path.node();
                 if (pathNode && typeof pathNode.getTotalLength === 'function' && typeof pathNode.getPointAtLength === 'function') {
                     traveler.transition()
-                        .delay(200) // Slight delay to sync with route drawing start
-                        .duration(1500)
+                        .delay(100) // Slight delay to sync with route drawing start
+                        .duration(1800) // Much more fluid and faster
                         .ease(easeCubicOut)
                         .attrTween('transform', () => {
                             return (t: number) => {
@@ -320,7 +321,7 @@ function updateOverlays(
                 .attr('transform', `translate(${coords[0]}, ${coords[1]})`)
                 .attr('opacity', 0) as Selection<SVGGElement, unknown, null, undefined>;
 
-            g.transition().delay(isActive ? 1000 : 0).duration(500).attr('opacity', 1);
+            g.transition().delay(isActive ? 600 : 0).duration(300).attr('opacity', 1);
         }
 
         // Update content
@@ -352,7 +353,29 @@ function updateOverlays(
                 .style('justify-content', 'center')
                 .style('padding', '8px')
                 .style('text-align', 'center')
-                .style('font-family', 'var(--font-satoshi), ui-sans-serif, system-ui, sans-serif');
+                .style('font-family', 'var(--font-satoshi), ui-sans-serif, system-ui, sans-serif')
+                .style('position', 'relative')
+                .attr('id', `card-content-${point.order}`); // For dismissal
+
+            // Close button inside the div
+            div.append('xhtml:button')
+                .style('position', 'absolute')
+                .style('top', '4px')
+                .style('right', '4px')
+                .style('width', '16px')
+                .style('height', '16px')
+                .style('border', 'none')
+                .style('background', 'transparent')
+                .style('cursor', 'pointer')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .style('color', '#9CA3AF')
+                .html('<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>')
+                .on('click', () => {
+                    // Hide the entire foreignObject container from DOM
+                    fo.style('display', 'none');
+                });
 
             // Title
             div.append('div')
@@ -502,6 +525,7 @@ function updateCamera(
 
     // Transition the SVG transform
     svg.transition()
-        .duration(1500)
+        .duration(1800) // Keep fluid
+        .ease(easeCubicOut)
         .call(zoom.transform, zoomIdentity.translate(tx, ty).scale(k));
 }

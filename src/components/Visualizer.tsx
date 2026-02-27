@@ -23,6 +23,8 @@ import type {
 import { VisualizationDataSchema } from '@/src/schemas/visualizerData';
 
 const LazyMapVisualizer = lazy(() => import('@/src/components/MapVisualizer'));
+const LazyTimelineVisualizer = lazy(() => import('@/src/components/visualizers/timeline/TimelineVisualizer'));
+const LazyGridVisualizer = lazy(() => import('@/src/components/visualizers/grid/GridVisualizer'));
 
 /* ========================================
    Types
@@ -98,11 +100,37 @@ export default function Visualizer({
                 </Suspense>
             )}
             {validData.type === 'TREE' && <TreePlaceholder data={validData as TreeVisualizationData} accentColor={accentColor} />}
-            {validData.type === 'TIMELINE' && <TimelinePlaceholder data={validData as TimelineVisualizationData} accentColor={accentColor} />}
-            {validData.type === 'GRID' && <GridPlaceholder data={validData as GridVisualizationData} />}
+            {validData.type === 'TIMELINE' && (
+                <Suspense fallback={<TimelinePlaceholder data={validData as TimelineVisualizationData} accentColor={accentColor} />}>
+                    <LazyTimelineVisualizer word={{
+                        word: 'Preview',
+                        definition: 'Placeholder definition for timeline.',
+                        slug: 'preview',
+                        visualization_type: 'TIMELINE',
+                        publish_date: new Date(),
+                        created_at: new Date(),
+                        updated_at: new Date(),
+                        is_published: true
+                    } as unknown as import('@/src/schemas/dailyWord').DailyWord} data={validData as TimelineVisualizationData} />
+                </Suspense>
+            )}
+            {validData.type === 'GRID' && (
+                <Suspense fallback={<GridPlaceholder data={validData as GridVisualizationData} />}>
+                    <LazyGridVisualizer word={{
+                        word: 'Preview',
+                        definition: 'Placeholder definition for grid.',
+                        slug: 'preview',
+                        visualization_type: 'GRID',
+                        publish_date: new Date(),
+                        created_at: new Date(),
+                        updated_at: new Date(),
+                        is_published: true
+                    } as unknown as import('@/src/schemas/dailyWord').DailyWord} data={validData as GridVisualizationData} />
+                </Suspense>
+            )}
 
-            {/* Footer — hidden for MAP (which has a real visualizer) */}
-            {validData.type !== 'MAP' && (
+            {/* Footer — hidden for MAP, TIMELINE, and GRID (which have real visualizers) */}
+            {validData.type !== 'MAP' && validData.type !== 'TIMELINE' && validData.type !== 'GRID' && (
                 <div className="mt-6 pt-4 border-t border-border-subtle">
                     <p className="text-[10px] text-muted/50 text-center tracking-wider uppercase">
                         Interactive visualization coming soon

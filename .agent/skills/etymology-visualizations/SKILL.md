@@ -175,7 +175,7 @@ export const TreeVisualizer = ({ data, accentColor }: { data: TreeData; accentCo
       .attr('d', link as any)
       .style('opacity', 0)
       .transition()
-      .duration(800)
+      .duration(1800)
       .delay((d, i) => i * 100)
       .style('opacity', 1);
 

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * MapPlaybackControls — Animation controls for the map visualization
+ * TreePlaybackControls — Animation controls for the tree visualization
  *
  * Provides play/pause/restart, forward/back, and speed selection.
  * Auto-advances activeStepIndex at configured speed.
@@ -13,28 +13,28 @@ import { useState, useEffect, useCallback, useRef } from 'react';
    Types
    ======================================== */
 
-interface MapPlaybackControlsProps {
+interface TreePlaybackControlsProps {
     totalSteps: number;
     activeStepIndex: number;
     onStepChange: (index: number) => void;
 }
 
-type PlaybackSpeed = 0.5 | 1;
+type PlaybackSpeed = 0.5 | 1 | 2;
 
-const SPEEDS: PlaybackSpeed[] = [0.5, 1];
-const BASE_INTERVAL_MS = 2000;
+const SPEEDS: PlaybackSpeed[] = [0.5, 1, 2];
+const BASE_INTERVAL_MS = 1500; // Trees might be read slightly faster than maps
 
 /* ========================================
    Component
    ======================================== */
 
-export default function MapPlaybackControls({
+export default function TreePlaybackControls({
     totalSteps,
     activeStepIndex,
     onStepChange,
-}: MapPlaybackControlsProps): React.JSX.Element {
+}: TreePlaybackControlsProps): React.JSX.Element {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [speed, setSpeed] = useState<PlaybackSpeed>(0.5);
+    const [speed, setSpeed] = useState<PlaybackSpeed>(1);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     /* ---- Auto-advance logic ---- */
@@ -97,16 +97,13 @@ export default function MapPlaybackControls({
     return (
         <div
             className="flex items-center justify-center gap-1.5 py-2 px-3 bg-black/60 backdrop-blur-md rounded-full border border-white/10 shadow-lg"
-            data-testid="map-playback-controls"
-            style={{
-                // Inline styles removed in favor of Tailwind classes for transparency/blur
-            }}
+            data-testid="tree-playback-controls"
         >
             {/* Restart */}
             <ControlButton
                 onClick={handleRestart}
                 label="Restart"
-                testId="map-playback-restart"
+                testId="tree-playback-restart"
             >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12" /></svg>
             </ControlButton>
@@ -116,7 +113,7 @@ export default function MapPlaybackControls({
                 onClick={handleBack}
                 label="Previous step"
                 disabled={activeStepIndex <= 0}
-                testId="map-playback-back"
+                testId="tree-playback-back"
             >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 19V5l-11 7 11 7zM20 19V5l-11 7 11 7z" /></svg>
             </ControlButton>
@@ -125,7 +122,7 @@ export default function MapPlaybackControls({
             <ControlButton
                 onClick={handlePlayPause}
                 label={isPlaying ? 'Pause' : 'Play'}
-                testId="map-playback-play"
+                testId="tree-playback-play"
                 highlight // Highlighted circle button
             >
                 {isPlaying ? (
@@ -140,7 +137,7 @@ export default function MapPlaybackControls({
                 onClick={handleForward}
                 label="Next step"
                 disabled={activeStepIndex >= totalSteps - 1}
-                testId="map-playback-forward"
+                testId="tree-playback-forward"
             >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M13 5v14l11-7-11-7zM4 5v14l11-7-11-7z" /></svg>
             </ControlButton>
@@ -162,7 +159,7 @@ export default function MapPlaybackControls({
                         key={s}
                         type="button"
                         onClick={() => setSpeed(s)}
-                        data-testid={`map-speed-${s}x`}
+                        data-testid={`tree-speed-${s}x`}
                         aria-label={`Speed ${s}x`}
                         style={{
                             padding: '2px 6px',

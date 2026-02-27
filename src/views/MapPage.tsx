@@ -7,12 +7,13 @@
  * and synced sidebar. Playback controls float over the map.
  */
 
-import { useState, useCallback, lazy, Suspense, useEffect, useRef } from 'react';
+import { useState, useCallback, lazy, Suspense, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import type { DailyWord } from '@/src/schemas/dailyWord';
 import { VisualizationDataSchema } from '@/src/schemas/visualizerData';
 import type { MapVisualizationData } from '@/src/schemas/visualizerData';
+import { getCachedHistory, setCachedHistory, type HistoryItem } from '@/src/lib/historyCache';
 
 const LazyMapVisualizer = lazy(() => import('@/src/components/MapVisualizer'));
 const LazyMapPlaybackControls = lazy(() => import('@/src/components/MapPlaybackControls'));
@@ -43,11 +44,21 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
         setMounted(true);
         const controller = new AbortController();
 
+        // Try cache first
+        const cached = getCachedHistory('MAP');
+        if (cached) {
+            setHistory(cached);
+            return;
+        }
+
         // Fetch recent map history with abort support
         // Limit 30 to cover more ground if map entries are sparse
         fetch('/api/word/history?type=MAP&limit=30', { signal: controller.signal })
             .then(res => res.ok ? res.json() : [])
-            .then(data => setHistory(data))
+            .then(data => {
+                setCachedHistory('MAP', data);
+                setHistory(data);
+            })
             .catch(err => {
                 if (err.name !== 'AbortError') {
                     console.error('Failed to load history:', err);
@@ -76,10 +87,12 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
     };
 
     // Validate visual_data
-    const parsed = VisualizationDataSchema.safeParse(word.content_json?.visual_data);
-    const mapData = parsed.success && parsed.data.type === 'MAP'
-        ? (parsed.data as MapVisualizationData)
-        : null;
+    const mapData = useMemo(() => {
+        const parsed = VisualizationDataSchema.safeParse(word.content_json?.visual_data);
+        return parsed.success && parsed.data.type === 'MAP'
+            ? (parsed.data as MapVisualizationData)
+            : null;
+    }, [word.content_json?.visual_data]);
 
     const totalSteps = mapData?.points.length ?? 0;
 
@@ -312,18 +325,19 @@ export default function MapPage({ word }: MapPageProps): React.JSX.Element {
                         </Suspense>
                     </div>
 
-                    {/* Playback Controls — floating at bottom center */}
+                    {/* Playback Controls — floating at top right */}
                     <div
-                        className="absolute bottom-6 left-1/2 z-10 w-full max-w-md px-4"
-                        style={{ transform: 'translateX(-50%)' }}
+                        className="absolute top-6 right-6 z-10 flex justify-end pointer-events-none"
                     >
-                        <Suspense fallback={null}>
-                            <LazyMapPlaybackControls
-                                totalSteps={totalSteps}
-                                activeStepIndex={activeStepIndex}
-                                onStepChange={handleStepChange}
-                            />
-                        </Suspense>
+                        <div className="pointer-events-auto">
+                            <Suspense fallback={null}>
+                                <LazyMapPlaybackControls
+                                    totalSteps={totalSteps}
+                                    activeStepIndex={activeStepIndex}
+                                    onStepChange={handleStepChange}
+                                />
+                            </Suspense>
+                        </div>
                     </div>
                 </div>
 

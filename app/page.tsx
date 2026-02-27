@@ -20,12 +20,13 @@ const LazyTimelinePage = lazy(() => import('@/src/views/TimelinePage'));
 const LazyGridPage = lazy(() => import('@/src/views/GridPage'));
 
 interface HomePageProps {
-    searchParams: Promise<{ date?: string }>;
+    searchParams: Promise<{ date?: string; preview?: string }>;
 }
 
 export default async function Home({ searchParams }: HomePageProps): Promise<React.JSX.Element> {
     const params = await searchParams;
     const dateParam = params.date;
+    const isPreview = params.preview === 'true';
 
     // Validate date format (YYYY-MM-DD)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -34,8 +35,8 @@ export default async function Home({ searchParams }: HomePageProps): Promise<Rea
     let targetDate: string;
 
     if (dateParam && dateRegex.test(dateParam)) {
-        // Prevent future dates
-        if (dateParam > today) {
+        // Prevent future dates (bypass when accessed from /preview page)
+        if (dateParam > today && !isPreview) {
             return <ErrorState message="Cannot view future words." />;
         }
         targetDate = dateParam;

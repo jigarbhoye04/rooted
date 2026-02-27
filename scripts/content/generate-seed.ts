@@ -13,6 +13,12 @@ import { gridWords } from './words-grid';
 
 const allWords = [...mapWords, ...treeWords, ...timelineWords, ...gridWords];
 
+// Fisher-Yates shuffle to mix visualization types
+for (let i = allWords.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+}
+
 console.log(`📊 Generated ${allWords.length} words`);
 console.log(`  MAP: ${mapWords.length}`);
 console.log(`  TREE: ${treeWords.length}`);

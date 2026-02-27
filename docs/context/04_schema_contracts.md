@@ -38,10 +38,18 @@ export const DailyWordSchema = z.object({
   content_json: z.object({
     hook: z.string().min(1),
     fun_fact: z.string().min(1),
+    part_of_speech: z.string().optional(),
     nerd_mode: z.object({
       ipa_full: z.string().optional(),
       disputed_origin: z.string().optional(),
       earliest_citation: z.string().optional(),
+    }).optional(),
+    palette: z.object({
+      primary: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+      secondary: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+      muted: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+      surface: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+      text: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
     }).optional(),
     visual_data: z.any(), // Validated separately based on type
   }),

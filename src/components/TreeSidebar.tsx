@@ -1,27 +1,21 @@
 'use client';
 
 /**
- * MapSidebar — Context panel for the map journey
+ * TreeSidebar — Context panel for the tree visualization
  *
- * Displays synced information based on the current step:
- * - Word header & origin
- * - Historical narrative (scrolling)
- * - Migration log (timeline cards)
- * - Fun fact & Nerd mode details
- *
- * Uses Framer Motion for smooth card entry/exit animations.
+ * Displays synced information based on the current step in the tree hierarchy.
  */
 
 import { useEffect, useRef } from 'react';
 import { m, LazyMotion, domAnimation, AnimatePresence } from 'framer-motion';
-import type { MapVisualizationData } from '@/src/schemas/visualizerData';
+import type { TreeStep } from '@/src/hooks/useTreeTimeline';
 
 /* ========================================
    Types
    ======================================== */
 
-interface MapSidebarProps {
-    data: MapVisualizationData;
+interface TreeSidebarProps {
+    steps: TreeStep[];
     word: string;
     definition: string;
     phonetic?: string;
@@ -35,25 +29,23 @@ interface MapSidebarProps {
         earliest_citation?: string;
     };
     onClose: () => void;
+    onJumpToStep?: (index: number) => void;
 }
 
 /* ========================================
    Component
    ======================================== */
 
-export default function MapSidebar({
-    data,
-    // word, // currently unused
+export default function TreeSidebar({
+    steps,
     definition,
-    // phonetic, // unused in sidebar design
     accentColor,
     activeStepIndex,
     hook,
     funFact,
-    // nerdMode, // can be used later
     onClose,
     onJumpToStep,
-}: MapSidebarProps & { onJumpToStep?: (index: number) => void }): React.JSX.Element | null {
+}: TreeSidebarProps): React.JSX.Element | null {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom of log when step changes
@@ -66,31 +58,28 @@ export default function MapSidebar({
         }
     }, [activeStepIndex]);
 
-    const activePoint = data.points[activeStepIndex];
-    if (!activePoint) return null;
+    const activeStep = steps[activeStepIndex];
+    if (!activeStep) return null;
 
-    // Filter points up to active index for the log (OR show all if navigating history?)
-    // For now, keep "progressive reveal" behavior but make visible items clickable.
-    const visiblePoints = data.points
-        .slice(0, activeStepIndex + 1)
-        .sort((a, b) => a.order - b.order);
+    // Filter points up to active index for the log
+    const visibleSteps = steps.slice(0, activeStepIndex + 1);
 
     return (
         <div className="flex flex-col h-full bg-[#FDFCF9] text-[#1A1A1A] font-sans relative">
             {/* Header: Current Status */}
-            <div className="shrink-0 p-6 border-b border-[#E9E4D9]">
+            <div className="flex-shrink-0 p-6 border-b border-[#E9E4D9]">
                 <div className="flex items-start justify-between mb-4">
                     <div>
-                        <span className="inline-block px-2 py-0.5 text-[10px] font-bold tracking-widest text-white uppercase bg-[#C0392B] rounded-sm mb-2">
-                            {activeStepIndex === 0 ? '00_ORIGIN_POINT' : `0${activeStepIndex}_MIGRATION_STEP`}
+                        <span className="inline-block px-2 py-0.5 text-[10px] font-bold tracking-widest text-white uppercase bg-[#C0392B] rounded-sm mb-2" style={{ backgroundColor: activeStepIndex === 0 ? '#1A1A1A' : accentColor }}>
+                            {activeStepIndex === 0 ? '00_ROOT_ORIGIN' : `0${activeStepIndex}_EVOLUTION_STEP`}
                         </span>
-                        <h2 className="text-2xl font-bold leading-tight font-serif">
-                            {activePoint.location_name}
+                        <h2 className="text-2xl font-bold leading-tight font-serif italic">
+                            {activeStep.node.term}
                         </h2>
                         <div className="flex items-center gap-2 mt-1 text-xs font-mono text-[#8C8577]">
-                            <span className="uppercase tracking-wider">STAGE_{activePoint.order}</span>
+                            <span className="uppercase tracking-wider font-bold text-[#1A1A1A]">{activeStep.node.language}</span>
                             <span>//</span>
-                            <span>{activePoint.era}</span>
+                            <span>{activeStep.node.era}</span>
                         </div>
                     </div>
                     <button
@@ -100,7 +89,7 @@ export default function MapSidebar({
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="6" y1="6" y2="18" /><line x1="6" x2="18" y1="6" y2="18" /></svg>
                     </button>
-                    {/* Desktop Close Button (optional, maybe just hide/show toggle in header) */}
+                    {/* Desktop Close Button */}
                     <button
                         onClick={onClose}
                         className="hidden sm:block p-1 hover:bg-[#E9E4D9] rounded-sm transition-colors text-muted"
@@ -111,17 +100,18 @@ export default function MapSidebar({
                 </div>
 
                 <p className="text-sm leading-relaxed text-[#4A4A4A]">
-                    {activePoint.context}
+                    <span className="font-semibold text-[#1A1A1A] uppercase text-xs mr-2">MEANING:</span>
+                    {activeStep.node.meaning}
                 </p>
             </div>
 
-            {/* Scrollable Content: Migration Log */}
+            {/* Scrollable Content: Evolution Log */}
             <div className="flex-1 overflow-y-auto p-6 space-y-8" ref={scrollRef}>
 
-                {/* Historical Context (Hook) - Only show at start */}
+                {/* Historical Context (Hook) */}
                 {hook && (
                     <div className="space-y-2 pb-6 border-b border-[#E9E4D9] border-dashed">
-                        <span className="inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[9px] font-bold tracking-widest text-white uppercase bg-[#D35400] rounded-sm">
+                        <span className="inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[9px] font-bold tracking-widest text-white uppercase rounded-sm" style={{ backgroundColor: accentColor }}>
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
                             CONTEXT
                         </span>
@@ -135,23 +125,23 @@ export default function MapSidebar({
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <span className="text-[10px] font-bold tracking-[0.2em] text-[#8C8577] uppercase">
-                            MIGRATION_LOG
+                            EVOLUTION_LOG
                         </span>
                         <span className="text-[9px] font-mono border border-[#1A1A1A] px-1 py-0.5 rounded-sm">
-                            ROUTE_ACTIVE
+                            {visibleSteps.length} NODES
                         </span>
                     </div>
 
                     <div className="relative pl-4 border-l border-[#E9E4D9]">
                         <LazyMotion features={domAnimation}>
                             <AnimatePresence>
-                                {visiblePoints.map((point, index) => (
+                                {visibleSteps.map((step, index) => (
                                     <TimelineCard
-                                        key={point.order}
-                                        point={point}
-                                        isLast={index === visiblePoints.length - 1}
+                                        key={step.id}
+                                        step={step}
+                                        isLast={index === visibleSteps.length - 1}
                                         accentColor={accentColor}
-                                        onClick={() => onJumpToStep?.(point.order - 1)}
+                                        onClick={() => onJumpToStep?.(index)}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -173,7 +163,7 @@ export default function MapSidebar({
             </div>
 
             {/* Footer: Definition Teaser */}
-            <div className="shrink-0 p-4 border-t border-[#E9E4D9] bg-[#F5F3EE]">
+            <div className="flex-shrink-0 p-4 border-t border-[#E9E4D9] bg-[#F5F3EE]">
                 <p className="text-[10px] font-bold tracking-widest text-[#8C8577] uppercase mb-1">
                     CURRENT_MEANING
                 </p>
@@ -190,12 +180,12 @@ export default function MapSidebar({
    ======================================== */
 
 function TimelineCard({
-    point,
+    step,
     isLast,
     accentColor,
     onClick
 }: {
-    point: MapVisualizationData['points'][0];
+    step: TreeStep;
     isLast: boolean;
     accentColor: string;
     onClick?: () => void;
@@ -219,13 +209,13 @@ function TimelineCard({
             />
 
             <div className={`p-4 rounded border ${isLast ? 'bg-white border-[#1A1A1A] shadow-sm' : 'bg-transparent border-transparent pl-0 pt-0'}`}>
-                <div className="flex items-baseline justify-between mb-1">
-                    <h3 className={`font-bold font-serif ${isLast ? 'text-lg text-[#1A1A1A]' : 'text-sm text-[#8C8577]'}`}>
-                        {point.location_name}
+                <div className="flex items-baseline justify-between mb-1 gap-2">
+                    <h3 className={`font-bold font-serif italic ${isLast ? 'text-lg text-[#1A1A1A]' : 'text-sm text-[#8C8577]'}`}>
+                        {step.node.term}
                     </h3>
-                    <span className="text-[10px] font-mono text-[#8C8577]">
-                        {point.era}
-                    </span>
+                    <div className="flex text-[10px] font-mono whitespace-nowrap overflow-hidden text-ellipsis text-[#8C8577] gap-1 shrink-0">
+                        {step.node.language} <span className="opacity-50">/</span> {step.node.era}
+                    </div>
                 </div>
 
                 {isLast && (
@@ -234,8 +224,8 @@ function TimelineCard({
                         animate={{ opacity: 1, height: 'auto' }}
                         transition={{ delay: 0.2, duration: 0.3 }}
                     >
-                        <p className="text-xs text-[#4A4A4A] leading-relaxed mt-2">
-                            {point.context}
+                        <p className="text-xs text-[#4A4A4A] leading-relaxed mt-2 line-clamp-2">
+                            {step.node.meaning}
                         </p>
                     </m.div>
                 )}

@@ -1,7 +1,7 @@
 # 02 - Progress Tracker
 
 **Project:** Rooted  
-**Last Updated: 2026-02-19
+**Last Updated: 2026-02-21
 **Current Phase:** Phase 0 - Setup
 
 ---
@@ -11,7 +11,7 @@
 ```
 Phase 0: Setup               [██████████] 100% ✅
 Phase 1: Foundation          [████████░░]  80%
-Phase 2: Visualizers         [████░░░░░░]  35%
+Phase 2: Visualizers         [██████████]  95%
 Phase 3: Scrollytelling      [░░░░░░░░░░]   0%
 Phase 4: PWA                 [░░░░░░░░░░]   0%
 Phase 5: Gamification        [░░░░░░░░░░]   0%
@@ -20,7 +20,7 @@ Phase 7: Share Feature       [░░░░░░░░░░]   0%
 Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
 ```
 
-**Overall:** 30% (Phase 0 complete, Phase 1 ~80%, Phase 2 ~35%)
+**Overall:** 40% (Phase 0 complete, Phase 1 ~80%, Phase 2 ~95%)
 
 ---
 
@@ -147,28 +147,31 @@ Phase 8: Nerd Mode           [░░░░░░░░░░]   0%
   - [x] Draw animated bezier route curves
   - [x] Full-page interactive experience (MapPage)
   - [x] Sidebar with synced content & animations
-  - [ ] Write integration tests (needs update)
 
 #### TreeVisualizer
-- [ ] Create `src/components/TreeVisualizer.tsx`
-  - [ ] Use D3 tree layout (dendrogram or radial)
-  - [ ] Render nodes from `visual_data.root` and `children`
-  - [ ] Static rendering
-  - [ ] Write tests
+- [x] Create `src/components/TreeVisualizer.tsx`
+  - [x] Use D3 tree layout (dendrogram or radial)
+  - [x] Render nodes from `visual_data.root` and `children`
+  - [x] Interactive animated rendering
 
 #### TimelineVisualizer
-- [ ] Create `src/components/TimelineVisualizer.tsx`
-  - [ ] Horizontal timeline with CSS Grid
-  - [ ] Render epochs from `visual_data.epochs`
-  - [ ] Static cards (no scroll trigger yet)
-  - [ ] Write tests
+- [x] Create `src/components/TimelineVisualizer.tsx`
+  - [x] Alternate layout rendering (Museum vs Newspaper style toggle)
+  - [x] Extracted `NewspaperRail`, `NewspaperCard`, `TimelineRail`, `TimelineCard`
+  - [x] Implemented multi-accent 5-color palette system (DB backfill script)
+  - [x] Dynamic text layouts based on content density (e.g. usage examples)
+  - [x] Added Right Sidebar Curator Notes and Central Word Hero component
 
 #### GridVisualizer
-- [ ] Create `src/components/GridVisualizer.tsx`
-  - [ ] 3x3 grid with Flexbox
-  - [ ] Render languages from `visual_data.languages`
-  - [ ] Show script in correct font
-  - [ ] Write tests
+- [x] Create `src/components/visualizers/grid/GridVisualizer.tsx`
+  - [x] Responsive CSS Grid layout (2→3→4 columns)
+  - [x] Render languages from `visual_data.languages`
+  - [x] Show script in correct font (Typography Engine)
+  - [x] Framer-motion stagger entrance + hover animations
+  - [x] Multi-accent 5-color palette integration
+  - [x] Right sidebar with hook, fun_fact, earliest_citation
+  - [x] Updated GridPage.tsx with schema validation
+  - [x] Updated Visualizer.tsx dispatcher with lazy-loaded Grid
 
 ### Demo Page
 - [x] Create `app/demo/page.tsx`
@@ -456,5 +459,5 @@ After completing a task:
 
 ---
 
-**Last Updated: 2026-02-19
+**Last Updated: 2026-02-21
 **Next Review:** After each phase completion
